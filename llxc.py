@@ -2,6 +2,7 @@
 """LLXC Linux Containers"""
 
 # Copyright (c) 2012 Jonathan Carter
+# This file is released under the MIT/expat license.
 
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -40,6 +41,10 @@ parser.add_argument("--ipstack", type=str, default="ipv4",
 # test arguments:
 args = parser.parse_args()
 #print("You chose to list the " + args.ipstack + " address on " + args.interface)
+
+# Set some variables
+CONTAINER_PATH = "/var/lib/lxc/"
+AUTOSTART_PATH = "/etc/lxc/auto/"
 
 # Set colours, unless llxcmono is set
 try:
@@ -107,12 +112,16 @@ def start():
 
 def toggleautostart():
     """Toggle autostart of LXC Container"""
-    if fileexists:
-        print (containername + " is currently set to autostart")
-        print ("disabling autostart...")
+    requiresroot()
+    containername = "autostart01" # FIXME: must get this from command line
+    if os.path.lexists(AUTOSTART_PATH + containername):
+        print ("%sINFO%s: %s is currently set to autostart" % (CYAN, NORMAL, 'containername') )
+        print ("%sACTION:%s disabling autostart..." % (GREEN, NORMAL) )
+        os.unlink(AUTOSTART_PATH + containername)
     else:
-        print (containername + " is not currently set to autostart")
-        print ("enabling autostart...")
+        print ("%sINFO%s: %s is not currently set to autostart" % (CYAN, NORMAL, 'container') )
+        print ("%sACTION:%s enabling autostart..." % (GREEN, NORMAL) ) 
+        os.symlink(CONTAINER_PATH + containername, AUTOSTART_PATH + containername)
 
 def create():
     """Create LXC Container"""
@@ -146,4 +155,6 @@ def confirm_container_existance():
 
 # Print help if no options are specified
 if len(sys.argv) == 1:
-    help()
+    #status()
+    #help()
+    toggleautostart()
