@@ -1,10 +1,45 @@
 #!/usr/bin/python3
-""" LLXC Linux Containers"""
+"""LLXC Linux Containers"""
+
+# Copyright (c) 2012 Jonathan Carter
+
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import argparse, os, sys, gettext
+from gettext import gettext as _
 
 # Set up translations via gettext
 gettext.textdomain("llxc")
+parser = argparse.ArgumentParser(
+         description=_("LLXC Linux Container Script"),
+         formatter_class=argparse.RawTextHelpFormatter)
+
+# Optional arguements
+parser.add_argument("--interface", type=str, default="eth0",
+    help=_("Interface that you would like to list, ex: eth0, eth1"))
+parser.add_argument("--ipstack", type=str, default="ipv4",
+    help=_("Network IP to list, ex: ipv4, ipv6"))
+
+# test arguments:
+args = parser.parse_args()
+#print("You chose to list the " + args.ipstack + " address on " + args.interface)
 
 # Set colours, unless llxcmono is set
 try:
@@ -23,8 +58,8 @@ except KeyError:
 
 def help():
     """Prints LLXC Usage"""
-    print (CYAN + "LLXC Linux Containers (llxc) \n\nUsage:" + NORMAL)
-    print ("""    * llxc enter containername
+    print ( "%sLLXC Linux Containers (llxc) \n\nUsage:%s" % (CYAN, NORMAL) )
+    print ( """    * llxc enter containername
     * llxc exec containername
     * llxc status containername
     * llxc stop containername
@@ -33,16 +68,16 @@ def help():
     * llxc destroy containername
     * llxc updatesshkeys
     * llxc gensshkeys
-    """)
-    print (CYAN + "Tips:" + NORMAL)
-    print ("""    * Set environment variable llxcmono=1 to disable colours
+    """ )
+    print ( "%sTips:%s" % (CYAN,NORMAL) )
+    print ( """    * Set environment variable llxcmono=1 to disable colours
     * llxc gensshkeys is usually run when the llxc package is installed
     * Tell your friends to use LXC!
-    """)
+    """ )
 
 def list():
     """Provides a list of LXC Containers"""
-    print (CYAN + "  NAME \t\t TASKS \t STATUS \tIP_ADDR_ETH0" + NORMAL)
+    print ("%s  NAME \t\t TASKS \t STATUS \tIP_ADDR_ETH0%S" % (CYAN, NORMAL) )
     for VZ in "vzlist":
         print ("  aptcache01 \t 12 \t RUNNING \t172.17.1.119")
 
@@ -90,6 +125,24 @@ def updatesshkeys():
 
 def gensshkeys():
     """Generate SSH Keys for use with LLXC"""
+
+# Tests
+
+def requiresroot():
+    """Tests whether the user is root. Required for many functions"""
+    if not os.getuid() == 0:
+        print(_( "%sError 403:%s This function requires root. Further execution has been aborted." % (RED, NORMAL) ))
+        sys.exit(403) 
+
+def confirm_container_existance():
+    """Checks whether specified container exists before execution."""
+    try:
+        if checkifdir/var/lib/lxc/containerexists:
+            print (_( "%sError 404:%s That container $CONTAINER could not be found." % (RED, NORMAL) ))
+            sys.exit(404)
+    except NameError:
+        print (_( "%sError 400:%s You must specify a container." % (RED, NORMAL) ))
+        sys.exit(404)
 
 # Print help if no options are specified
 if len(sys.argv) == 1:
