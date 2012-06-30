@@ -29,13 +29,15 @@ from gettext import gettext as _
 # Set up translations via gettext
 gettext.textdomain("llxc")
 parser = argparse.ArgumentParser(
-         description=_("LLXC Linux Container Script"),
+         description=_("LLXC Linux Container Management"),
          formatter_class=argparse.RawTextHelpFormatter)
 
 # Optional arguements
-parser.add_argument("--interface", type=str, default="eth0",
-    help=_("Interface that you would like to list, ex: eth0, eth1"))
-parser.add_argument("--ipstack", type=str, default="ipv4",
+parser.add_argument("function", type=str, default="help",
+    help=_("Function to be executed"))
+parser.add_argument("-if", "--interface", type=str, default="eth0",
+    help=_("Ethernet Interface, eg: eth0, eth1"))
+parser.add_argument("-ip", "--ipstack", type=str, default="ipv4",
     help=_("Network IP to list, ex: ipv4, ipv6"))
 
 # test arguments:
@@ -45,6 +47,7 @@ args = parser.parse_args()
 # Set some variables
 CONTAINER_PATH = "/var/lib/lxc/"
 AUTOSTART_PATH = "/etc/lxc/auto/"
+containername = "autostart01"
 
 # Set colours, unless llxcmono is set
 try:
@@ -63,7 +66,7 @@ except KeyError:
 
 def help():
     """Prints LLXC Usage"""
-    print ( "%sLLXC Linux Containers (llxc) \n\nUsage:%s" % (CYAN, NORMAL) )
+    print ( "%sLLXC Linux Containers (llxc) \n\nExamples:%s" % (CYAN, NORMAL) )
     print ( """    * llxc enter containername
     * llxc exec containername
     * llxc status containername
@@ -73,16 +76,18 @@ def help():
     * llxc destroy containername
     * llxc updatesshkeys
     * llxc gensshkeys
+    * llxc -h
     """ )
     print ( "%sTips:%s" % (CYAN,NORMAL) )
     print ( """    * Set environment variable llxcmono=1 to disable colours
+    * Type "llxc -h" for full command line usage 
     * llxc gensshkeys is usually run when the llxc package is installed
     * Tell your friends to use LXC!
     """ )
 
 def list():
     """Provides a list of LXC Containers"""
-    print ("%s  NAME \t\t TASKS \t STATUS \tIP_ADDR_ETH0%S" % (CYAN, NORMAL) )
+    print ("%s  NAME \t\t TASKS \t STATUS \tIP_ADDR_ETH0%s" % (CYAN, NORMAL) )
     for VZ in "vzlist":
         print ("  aptcache01 \t 12 \t RUNNING \t172.17.1.119")
 
@@ -112,16 +117,19 @@ def start():
 
 def toggleautostart():
     """Toggle autostart of LXC Container"""
-    requiresroot()
-    containername = "autostart01" # FIXME: must get this from command line
+    requires_root()
+    confirm_container_existance()
     if os.path.lexists(AUTOSTART_PATH + containername):
-        print ("%sINFO%s: %s is currently set to autostart" % (CYAN, NORMAL, 'containername') )
+        print ("%sINFO%s: %s is currently set to autostart"
+	       % (CYAN, NORMAL, 'containername') )
         print ("%sACTION:%s disabling autostart..." % (GREEN, NORMAL) )
         os.unlink(AUTOSTART_PATH + containername)
     else:
-        print ("%sINFO%s: %s is not currently set to autostart" % (CYAN, NORMAL, 'container') )
+        print ("%sINFO%s: %s is not currently set to autostart"
+	       % (CYAN, NORMAL, 'container') )
         print ("%sACTION:%s enabling autostart..." % (GREEN, NORMAL) ) 
-        os.symlink(CONTAINER_PATH + containername, AUTOSTART_PATH + containername)
+        os.symlink(CONTAINER_PATH + containername,
+	           AUTOSTART_PATH + containername)
 
 def create():
     """Create LXC Container"""
@@ -137,7 +145,7 @@ def gensshkeys():
 
 # Tests
 
-def requiresroot():
+def requires_root():
     """Tests whether the user is root. Required for many functions"""
     if not os.getuid() == 0:
         print(_( "%sError 403:%s This function requires root. Further execution has been aborted." % (RED, NORMAL) ))
@@ -146,15 +154,19 @@ def requiresroot():
 def confirm_container_existance():
     """Checks whether specified container exists before execution."""
     try:
-        if checkifdir/var/lib/lxc/containerexists:
+        if not os.path.exists(CONTAINER_PATH + containername):
             print (_( "%sError 404:%s That container $CONTAINER could not be found." % (RED, NORMAL) ))
             sys.exit(404)
     except NameError:
         print (_( "%sError 400:%s You must specify a container." % (RED, NORMAL) ))
         sys.exit(404)
 
-# Print help if no options are specified
-if len(sys.argv) == 1:
-    #status()
-    #help()
+# Run functions
+if args.function == "list":
+    list()
+if args.function == "toggleautostart":
     toggleautostart()
+if args.function == "status":
+    status()
+if args.function == "":
+    basichelp()
