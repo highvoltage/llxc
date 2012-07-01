@@ -23,7 +23,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import argparse, os, sys, gettext, lxc
+import argparse, os, sys, gettext, lxc, glob
 from gettext import gettext as _
 
 # Set up translations via gettext
@@ -73,6 +73,7 @@ except AttributeError:
 # Set some variables
 CONTAINER_PATH = "/var/lib/lxc/"
 AUTOSTART_PATH = "/etc/lxc/auto/"
+CGROUP_PATH = "/sys/fs/cgroup/"
 
 # Set colours, unless llxcmono is set
 try:
@@ -111,9 +112,16 @@ def examples():
 
 def list():
     """Provides a list of LXC Containers"""
-    print ("%s  NAME \t\t TASKS \t STATUS \tIP_ADDR_ETH0%s" % (CYAN, NORMAL) )
-    for VZ in "vzlist":
-        print ("  aptcache01 \t 12 \t RUNNING \t172.17.1.119")
+    print ("%s  NAME \t\t TASKS \t   STATUS \tIP_ADDR_%s%s" % (CYAN, args.interface.swapcase(), NORMAL) )
+    for ircglob in glob.glob(CONTAINER_PATH + '*/config'):
+        containername = (ircglob.replace(CONTAINER_PATH,"").rstrip("/config"))
+        t1 = lxc.Container(containername)
+        try:
+            ipaddress = t1.get_ips(protocol="ipv4", interface="eth0", timeout=0.1)
+        except TypeError:
+            ipaddress = "None" 
+        print ("  %s \t %s \t   %s \t%s" % (containername, "tasks",
+	       t1.state.swapcase(), ipaddress[0]))
 
 def status():
     """Prints a status report for specified container"""
@@ -196,8 +204,6 @@ def confirm_container_existance():
         sys.exit(404)
 
 # End tests
-
-#args = parser.parse_args()
 
 # Run functions
 try:
