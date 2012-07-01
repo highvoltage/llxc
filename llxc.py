@@ -23,7 +23,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import argparse, os, sys, gettext, lxc, glob
+import argparse, os, sys, lxc, glob, gettext
 from gettext import gettext as _
 
 # Set up translations via gettext
@@ -42,22 +42,29 @@ parser.add_argument("-ip", "--ipstack", type=str, default="ipv4",
 sp = parser.add_subparsers(help='sub command help')
 
 parser_create = sp.add_parser('create', help='Create a container')
-parser_create.add_argument('containername', type=str, help='name of the container')
+parser_create.add_argument('containername', type=str,
+                           help='name of the container')
 
 parser_destroy = sp.add_parser('destroy', help='Destroy a container')
-parser_destroy.add_argument('containername', type=str, help='name of the container')
+parser_destroy.add_argument('containername', type=str,
+                            help='name of the container')
 
 parser_status = sp.add_parser('status', help='Display container status')
-parser_status.add_argument('containername', type=str, help='Name of the container')
+parser_status.add_argument('containername', type=str,
+                           help='Name of the container')
 
 parser_stop = sp.add_parser('stop', help='Stops a container')
-parser_stop.add_argument('containername', type=str, help='Name of the container')
+parser_stop.add_argument('containername', type=str,
+                         help='Name of the container')
 
 parser_start = sp.add_parser('start', help='Starts a container')
-parser_start.add_argument('containername', type=str, help='Name of the container')
+parser_start.add_argument('containername', type=str,
+                          help='Name of the container')
 
-parser_toggleautostart = sp.add_parser('toggleautostart', help='Toggles the state of starting up on boot time for a container')
-parser_toggleautostart.add_argument('containername', type=str, help='Name of the container')
+parser_toggleautostart = sp.add_parser('toggleautostart',
+    help='Toggles the state of starting up on boot time for a container')
+parser_toggleautostart.add_argument('containername', type=str,
+                                    help='Name of the container')
 
 parser_list = sp.add_parser('list', help='Displays a list of containers')
 
@@ -68,7 +75,8 @@ try:
 except AttributeError:
     pass
 
-#print("You chose to list the " + args.ipstack + " address on " + args.interface)
+#print("You chose to list the " + args.ipstack +
+#      " address on " + args.interface)
 
 # Set some variables
 CONTAINER_PATH = "/var/lib/lxc/"
@@ -92,7 +100,8 @@ except KeyError:
 
 def examples():
     """Prints LLXC Usage"""
-    print ( "%sLLXC Linux Containers (llxc) \n\nExamples:%s" % (CYAN, NORMAL) )
+    print ( "%sLLXC Linux Containers (llxc) \n\nExamples:%s"
+            % (CYAN, NORMAL) )
     print ( """    * llxc enter containername
     * llxc exec containername
     * llxc status containername
@@ -103,7 +112,7 @@ def examples():
     * llxc toggleautostart containername
     * llxc -h
     """ )
-    print ( "%sTips:%s" % (CYAN,NORMAL) )
+    print ( "%sTips:%s" % (CYAN, NORMAL) )
     print ( """    * Set environment variable llxcmono=1 to disable colours
     * Type "llxc -h" for full command line usage 
     * llxc gensshkeys is usually run when the llxc package is installed
@@ -112,22 +121,24 @@ def examples():
 
 def list():
     """Provides a list of LXC Containers"""
-    print ("%s  NAME \t\t TASKS \t   STATUS \tIP_ADDR_%s%s" % (CYAN, args.interface.swapcase(), NORMAL) )
+    print ("%s  NAME \t\t TASKS \t   STATUS \tIP_ADDR_%s%s"
+           % (CYAN, args.interface.swapcase(), NORMAL) )
     for ircglob in glob.glob(CONTAINER_PATH + '*/config'):
         containername = (ircglob.replace(CONTAINER_PATH,"").rstrip("/config"))
-        t1 = lxc.Container(containername)
+        cont = lxc.Container(containername)
         try:
-            ipaddress = t1.get_ips(protocol="ipv4", interface="eth0", timeout=0.1)
+            ipaddress = cont.get_ips(protocol="ipv4",
+                                     interface="eth0", timeout=0.1)
             ipaddress = ipaddress[0]
         except TypeError:
-            ipaddress = "Not Available"
+            ipaddress = "Unavailable"
         try:
             tasks = sum(1 for line in open(CGROUP_PATH + "cpuset/lxc/" +
                         containername + "/tasks", 'r'))
         except IOError:
             tasks = "00"
         print ("  %s \t %s \t   %s \t%s" % (containername, tasks,
-	       t1.state.swapcase(), ipaddress))
+	       cont.state.swapcase(), ipaddress))
 
 def status():
     """Prints a status report for specified container"""
@@ -153,16 +164,16 @@ def stop():
     requires_root()
     confirm_container_existance()
     print (" * Stopping %s..." % (containername))
-    t1 = lxc.Container(containername)
-    if t1.stop():
+    cont = lxc.Container(containername)
+    if cont.stop():
         print ("   %s%s sucessfully stopped%s" % (GREEN, containername, NORMAL))
 
 def start():
     """Start LXC Container"""
     requires_root()
     print (" * Starting %s..." % (containername))
-    t1 = lxc.Container(containername)
-    if t1.start():
+    cont = lxc.Container(containername)
+    if cont.start():
         print ("   %s%s sucessfully started%s" % (GREEN, containername, NORMAL))
 
 def toggle_autostart():
@@ -172,12 +183,14 @@ def toggle_autostart():
     if os.path.lexists(AUTOSTART_PATH + containername):
         print ("%sInfo%s: %s was set to autostart on boot"
 	       % (CYAN, NORMAL, containername) )
-        print ("%sAction:%s disabling autostart for %s..." % (GREEN, NORMAL, containername) )
+        print ("%sAction:%s disabling autostart for %s..."
+               % (GREEN, NORMAL, containername) )
         os.unlink(AUTOSTART_PATH + containername)
     else:
         print ("%sInfo%s: %s was set to autostart on boot"
 	       % (CYAN, NORMAL, containername) )
-        print ("%sAction:%s enabling autostart for %s..." % (GREEN, NORMAL, containername) ) 
+        print ("%sAction:%s enabling autostart for %s..."
+               % (GREEN, NORMAL, containername) ) 
         os.symlink(CONTAINER_PATH + containername,
 	           AUTOSTART_PATH + containername)
 
@@ -197,35 +210,38 @@ def destroy():
 def requires_root():
     """Tests whether the user is root. Required for many functions"""
     if not os.getuid() == 0:
-        print(_( "%sError 403:%s This function requires root. Further execution has been aborted." % (RED, NORMAL) ))
+        print(_( "%sError 403:%s This function requires root. \
+                 Further execution has been aborted." % (RED, NORMAL) ))
         sys.exit(403) 
 
 def confirm_container_existance():
     """Checks whether specified container exists before execution."""
     try:
         if not os.path.exists(CONTAINER_PATH + containername):
-            print (_( "%sError 404:%s That container (%s) could not be found." % (RED, NORMAL, containername) ))
+            print (_( "%sError 404:%s That container (%s) could not be found."
+                      % (RED, NORMAL, containername) ))
             sys.exit(404)
     except NameError:
-        print (_( "%sError 400:%s You must specify a container." % (RED, NORMAL) ))
+        print (_( "%sError 400:%s You must specify a container."
+                  % (RED, NORMAL) ))
         sys.exit(404)
 
 # End tests
 
 # Run functions
 try:
-   function = sys.argv[1]
-   if function == "list":
-       list()
-   if function == "create":
-       create()
-   if function == "destroy":
-       destroy()
-   if function == "start":
-       start()
-   if function == "stop":
-       stop()
-   if function == "toggleautostart":
-       toggle_autostart()
+    function = sys.argv[1]
+    if function == "list":
+        list()
+    if function == "create":
+        create()
+    if function == "destroy":
+        destroy()
+    if function == "start":
+        start()
+    if function == "stop":
+        stop()
+    if function == "toggleautostart":
+        toggle_autostart()
 except IndexError:
     examples()
