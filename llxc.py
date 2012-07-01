@@ -136,6 +136,7 @@ def status():
 
 def stop():
     """Stop LXC Container"""
+    requires_root()
     print (" * Stopping %s..." % (containername))
     t1 = lxc.Container(containername)
     if t1.stop():
@@ -143,9 +144,11 @@ def stop():
 
 def start():
     """Start LXC Container"""
+    requires_root()
     print (" * Starting %s..." % (containername))
     t1 = lxc.Container(containername)
-    print ("%s" % t1.start())
+    if t1.start():
+        print ("   %s%s sucessfully started%s" % (GREEN, containername, NORMAL))
 
 def toggle_autostart():
     """Toggle autostart of LXC Container"""
@@ -165,10 +168,12 @@ def toggle_autostart():
 
 def create():
     """Create LXC Container"""
+    requires_root()
     print ("Create " + containername)
 
 def destroy():
     """Destroy LXC Container"""
+    requires_root()
     confirm_container_existance()
     print ("Destroy " + containername)
 
