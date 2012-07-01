@@ -23,7 +23,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import argparse, os, sys, gettext
+import argparse, os, sys, gettext, lxc
 from gettext import gettext as _
 
 # Set up translations via gettext
@@ -136,11 +136,16 @@ def status():
 
 def stop():
     """Stop LXC Container"""
-    print ("Should Stop " + containername)
+    print (" * Stopping %s..." % (containername))
+    t1 = lxc.Container(containername)
+    if t1.stop():
+        print ("   %s%s sucessfully stopped%s" % (GREEN, containername, NORMAL))
 
 def start():
     """Start LXC Container"""
-    print ("Shoud Start " + containername)
+    print (" * Starting %s..." % (containername))
+    t1 = lxc.Container(containername)
+    print ("%s" % t1.start())
 
 def toggle_autostart():
     """Toggle autostart of LXC Container"""
