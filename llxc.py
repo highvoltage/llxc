@@ -119,8 +119,10 @@ def list():
         try:
             ipaddress = t1.get_ips(protocol="ipv4", interface="eth0", timeout=0.1)
         except TypeError:
-            ipaddress = "None" 
-        print ("  %s \t %s \t   %s \t%s" % (containername, "tasks",
+            ipaddress = "None"
+        tasks = sum(1 for line in open(CGROUP_PATH + "cpuset/lxc/" +
+                    containername + "/tasks", 'r'))
+        print ("  %s \t %s \t   %s \t%s" % (containername, tasks,
 	       t1.state.swapcase(), ipaddress[0]))
 
 def status():
@@ -145,6 +147,7 @@ def status():
 def stop():
     """Stop LXC Container"""
     requires_root()
+    confirm_container_existance()
     print (" * Stopping %s..." % (containername))
     t1 = lxc.Container(containername)
     if t1.stop():
