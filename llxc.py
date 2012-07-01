@@ -118,12 +118,16 @@ def list():
         t1 = lxc.Container(containername)
         try:
             ipaddress = t1.get_ips(protocol="ipv4", interface="eth0", timeout=0.1)
+            ipaddress = ipaddress[0]
         except TypeError:
-            ipaddress = "None"
-        tasks = sum(1 for line in open(CGROUP_PATH + "cpuset/lxc/" +
-                    containername + "/tasks", 'r'))
+            ipaddress = "Not Available"
+        try:
+            tasks = sum(1 for line in open(CGROUP_PATH + "cpuset/lxc/" +
+                        containername + "/tasks", 'r'))
+        except IOError:
+            tasks = "00"
         print ("  %s \t %s \t   %s \t%s" % (containername, tasks,
-	       t1.state.swapcase(), ipaddress[0]))
+	       t1.state.swapcase(), ipaddress))
 
 def status():
     """Prints a status report for specified container"""
