@@ -1,3 +1,23 @@
+LLXC is a script for working with LXC containers using python3-lxc.
+
+What currently works:
+    * Starting containers
+    * Stopping containers
+    * Listing containers
+
+What doesn't work yet:
+    * Creating containers
+    * Destroying containers
+    * Detailed container status
+    * Entering containers
+    * Executing commands in containers
+    * Freezing containers
+    * Unfreezing containers
+
+What probably won't work:
+    * SSH Key management, kernel user namespace patches make it kind of obsolete
+
 Depends:
+    * lxc, at least 0.8.0~rc1
     * python3
     * python3-lxc
