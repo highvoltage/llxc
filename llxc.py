@@ -123,14 +123,16 @@ def list():
     """Provides a list of LXC Containers"""
     print ("%s  NAME \t\t TASKS \t   STATUS \tIP_ADDR_%s%s"
            % (CYAN, args.interface.swapcase(), NORMAL) )
-    for ircglob in glob.glob(CONTAINER_PATH + '*/config'):
-        containername = (ircglob.replace(CONTAINER_PATH,"").rstrip("/config"))
+    for container in glob.glob(CONTAINER_PATH + '*/config'):
+        containername = container.replace(CONTAINER_PATH,"").rstrip("/config")
         cont = lxc.Container(containername)
         try:
             ipaddress = cont.get_ips(protocol="ipv4",
                                      interface="eth0", timeout=0.1)
             ipaddress = ipaddress[0]
         except TypeError:
+            ipaddress = "Unavailable"
+        except IndexError:
             ipaddress = "Unavailable"
         try:
             tasks = sum(1 for line in open(CGROUP_PATH + "cpuset/lxc/" +
