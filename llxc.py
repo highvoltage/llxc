@@ -244,4 +244,5 @@ try:
     if function == "toggleautostart":
         toggle_autostart()
 except IndexError:
-    examples()
+    #examples()
+    pass
