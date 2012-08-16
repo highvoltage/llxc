@@ -23,7 +23,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import argparse, os, sys, lxc, glob, gettext
+import argparse, os, sys, lxc, glob, gettext, time
 from gettext import gettext as _
 
 # Set up translations via gettext
@@ -203,9 +203,17 @@ def create():
 
 def destroy():
     """Destroy LXC Container"""
+    # TODO: Eventually we'll do everything from here, but for now,
+    # we just call lxc-destroy externally
     requires_root()
     confirm_container_existance()
-    print ("Destroy " + containername)
+    if container_is_running():
+        print (" * %sWARNING:%s Container is running, stopping before destroying in 10 seconds..." % (YELLOW, NORMAL))
+        time.sleep(10)
+        stop()
+    print (" * Destroying container " + containername + "...")
+    result = (os.popen("lxc-destroy -n " + containername).read())
+    print ("   %s%s successfully destroyed %s" % (GREEN, containername, NORMAL))
 
 # Tests
 
@@ -228,6 +236,12 @@ def confirm_container_existance():
                   % (RED, NORMAL) ))
         sys.exit(404)
 
+def container_is_running():
+    """Check whether a container is running."""
+    if lxc.Container("mysql01").state == "RUNNING":
+        return 1 
+    else:
+        return 0
 # End tests
 
 # Run functions
@@ -246,5 +260,4 @@ try:
     if function == "toggleautostart":
         toggle_autostart()
 except IndexError:
-    #examples()
-    pass
+    examples()
