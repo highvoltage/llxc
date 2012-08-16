@@ -18,6 +18,8 @@
  * setting up of ssh service in guests
  * entering guests via ssh
  * executing commands via ssh
+ * startall - to start all containers
+ * runinall - exec a command in all containers
 
 0.3
  * native destroying of containers
@@ -26,3 +28,6 @@
 
 0.4
  * native container creation, even if crude
+
+0.5
+ * Basic awareness of other hosts

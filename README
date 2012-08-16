@@ -4,10 +4,10 @@ What currently works:
     * Starting containers
     * Stopping containers
     * Listing containers
-    * Destroying containers
+    * Destroying containers (via lxc-destroy)
+    * Creating containers (via lxc-create)
 
 What doesn't work yet:
-    * Creating containers
     * Detailed container status
     * Entering containers
     * Executing commands in containers
