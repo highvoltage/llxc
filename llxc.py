@@ -183,15 +183,15 @@ def toggle_autostart():
     requires_root()
     confirm_container_existance()
     if os.path.lexists(AUTOSTART_PATH + containername):
-        print ("%sInfo%s: %s was set to autostart on boot"
+        print ("   %sINFO:%s %s was set to autostart on boot"
 	       % (CYAN, NORMAL, containername) )
-        print ("%sAction:%s disabling autostart for %s..."
+        print ("   %sACTION:%s disabling autostart for %s..."
                % (GREEN, NORMAL, containername) )
         os.unlink(AUTOSTART_PATH + containername)
     else:
-        print ("%sInfo%s: %s was set to autostart on boot"
+        print ("   %sINFO%s: %s was unset to autostart on boot"
 	       % (CYAN, NORMAL, containername) )
-        print ("%sAction:%s enabling autostart for %s..."
+        print ("   %sACTION:%s enabling autostart for %s..."
                % (GREEN, NORMAL, containername) ) 
         os.symlink(CONTAINER_PATH + containername,
 	           AUTOSTART_PATH + containername)
@@ -199,7 +199,14 @@ def toggle_autostart():
 def create():
     """Create LXC Container"""
     requires_root()
-    print ("Create " + containername)
+    # TODO: check that container does not exist
+    print (" * Creating container: %s..." % (containername))
+    result = os.popen("lxc-create -n %s -t ubuntu" % (containername)).read()
+    # TODO: check that container is created successfully first
+    print ("   %scontainer %s successfully created%s" % (GREEN, containername, NORMAL))
+    toggle_autostart()
+    start()
+
 
 def destroy():
     """Destroy LXC Container"""
@@ -212,7 +219,7 @@ def destroy():
         time.sleep(10)
         stop()
     print (" * Destroying container " + containername + "...")
-    result = (os.popen("lxc-destroy -n " + containername).read())
+    result = os.popen("lxc-destroy -n " + containername).read()
     print ("   %s%s successfully destroyed %s" % (GREEN, containername, NORMAL))
 
 # Tests
@@ -220,7 +227,7 @@ def destroy():
 def requires_root():
     """Tests whether the user is root. Required for many functions"""
     if not os.getuid() == 0:
-        print(_( "%sError 403:%s This function requires root. \
+        print(_( "   %sERROR 403:%s This function requires root. \
                  Further execution has been aborted." % (RED, NORMAL) ))
         sys.exit(403) 
 
@@ -228,17 +235,17 @@ def confirm_container_existance():
     """Checks whether specified container exists before execution."""
     try:
         if not os.path.exists(CONTAINER_PATH + containername):
-            print (_( "%sError 404:%s That container (%s) could not be found."
+            print (_( "   %sERROR 404:%s That container (%s) could not be found."
                       % (RED, NORMAL, containername) ))
             sys.exit(404)
     except NameError:
-        print (_( "%sError 400:%s You must specify a container."
+        print (_( "   %sERROR 400:%s You must specify a container."
                   % (RED, NORMAL) ))
         sys.exit(404)
 
 def container_is_running():
     """Check whether a container is running."""
-    if lxc.Container("mysql01").state == "RUNNING":
+    if lxc.Container(containername).state == "RUNNING":
         return 1 
     else:
         return 0
