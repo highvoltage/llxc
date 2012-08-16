@@ -259,8 +259,6 @@ def create():
 
 def destroy():
     """Destroy LXC Container"""
-    # TODO: Eventually we'll do everything from here, but for now,
-    # we just call lxc-destroy externally
     requires_root()
     confirm_container_existance()
     if container_is_running():
@@ -269,7 +267,9 @@ def destroy():
         time.sleep(10)
         stop()
     print (" * Destroying container " + containername + "...")
-    result = os.popen("lxc-destroy -n " + containername).read()
+    cont = lxc.Container(containername)
+    if cont.destroy():
+        print ("   %scontainer successfully destroyed%s" % (GREEN, NORMAL))
     print ("   %s%s successfully destroyed %s"
            % (GREEN, containername, NORMAL))
 

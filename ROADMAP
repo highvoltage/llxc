@@ -1,33 +1,36 @@
-0.01 - Current Unreleased Version
+LLXC Roadmap.
 
-
-0.1
+0.1 - Current Development Version
  * [x] stop a container
  * [x] start a container
- * destroy a container via python-lxc
- * create a container via python-lxc
+ * [ ] shutdown - SIGPWR to container
+ * [x] destroy a container via python-lxc
+ * [ ] create a container via python-lxc
  * [x] freeze a container
  * [x] unfreeze a container
- * proper command line parsing
- * working status page
+ * [ ] proper command line parsing
+ * [ ] working status page, even if crude
+ * [x] basic container listing
+ * [ ] rename stop to kill and shutdown to stop
 
-0.2
- * all strings are translated
- * generating of ssh keys
- * updating of ssh keys in clients
- * setting up of ssh service in guests
- * entering guests via ssh
- * executing commands via ssh
- * startall - to start all containers
- * runinall - exec a command in all containers
+0.2 - Future Release
+ * [ ] clone a container
+ * [ ] all strings are translable
+ * [ ] generating of ssh keys
+ * [ ] updating of ssh keys in clients
+ * [ ] setting up of ssh service in guests
+ * [ ] entering guests via ssh
+ * [ ] executing commands via ssh
+ * [ ] startall - to start all containers
+ * [ ] runinall - exec a command in all containers
 
-0.3
- * native destroying of containers
- * diagnostics of lxc system
- * netstat for containers
+0.3 - Future Release
+ * [ ] diagnostics of lxc system
+ * [ ] netstat for containers
+ * [ ] printconfig - show config for container
 
-0.4
- * native container creation, even if crude
+0.4 - Future Release
+ * [ ]
 
-0.5
- * Basic awareness of other hosts
+0.5 - Future Release
+ * [ ] Basic awareness of other hosts
