@@ -145,7 +145,7 @@ def list():
 def status():
     """Prints a status report for specified container"""
     confirm_container_existance()
-    print (CYAN + """
+    print (CYAN + """\
     Status report for container:  """ + "container" + NORMAL + """
                     LXC Version:  %s
                        LXC Host:  %s
@@ -168,7 +168,8 @@ def stop():
     print (" * Stopping %s..." % (containername))
     cont = lxc.Container(containername)
     if cont.stop():
-        print ("   %s%s sucessfully stopped%s" % (GREEN, containername, NORMAL))
+        print ("   %s%s sucessfully stopped%s"
+               % (GREEN, containername, NORMAL))
 
 def start():
     """Start LXC Container"""
@@ -176,7 +177,46 @@ def start():
     print (" * Starting %s..." % (containername))
     cont = lxc.Container(containername)
     if cont.start():
-        print ("   %s%s sucessfully started%s" % (GREEN, containername, NORMAL))
+        print ("   %s%s sucessfully started%s"
+               % (GREEN, containername, NORMAL))
+
+def freeze():
+    """Freeze LXC Container"""
+    requires_root()
+    confirm_container_existance()
+    if lxc.Container(containername).state == "RUNNING":
+        print (" * Freezing container: %s..." % (containername))
+        cont = lxc.Container(containername)
+            if cont.freeze():
+                print ("    %scontainer successfully frozen%s"
+                       % (GREEN, NORMAL))
+            else:
+                print ("    %ERROR:% Something went wrong, please check status."
+                       % (RED, NORMAL))
+    else:
+        print ("   %sERROR:%s The container state is %s, \
+                it needs to be in the 'RUNNING' state in \
+                order to be frozen." % (RED, NORMAL))
+
+def unfreeze():
+    """Unfreeze LXC Container"""
+    requires_root()
+    confirm_container_existance()
+    print (" * Unfreezing container: %s..." % (containername))
+    if lxc.Container(containername).state == "FROZEN":
+        print (" * Unfreezing container: %s..." % (containername))
+        cont = lxc.Container(containername)
+            if cont.unfreeze():
+                print ("    %scontainer successfully unfrozen%s"
+                       % (GREEN, NORMAL))
+            else:
+                print ("    %sERROR:%s Something went wrong, please check status."
+    else:
+        print ("   %sERROR:%s The container state is %s, \
+                it needs to be in the 'FROZEN' state in \
+                order to be unfrozen."
+                % (RED, NORMAL, lxc.Container(containername).state)
+
 
 def toggle_autostart():
     """Toggle autostart of LXC Container"""
@@ -203,7 +243,8 @@ def create():
     print (" * Creating container: %s..." % (containername))
     result = os.popen("lxc-create -n %s -t ubuntu" % (containername)).read()
     # TODO: check that container is created successfully first
-    print ("   %scontainer %s successfully created%s" % (GREEN, containername, NORMAL))
+    print ("   %scontainer %s successfully created%s"
+           % (GREEN, containername, NORMAL))
     toggle_autostart()
     start()
 
@@ -215,12 +256,14 @@ def destroy():
     requires_root()
     confirm_container_existance()
     if container_is_running():
-        print (" * %sWARNING:%s Container is running, stopping before destroying in 10 seconds..." % (YELLOW, NORMAL))
+        print (" * %sWARNING:%s Container is running, \
+               stopping before destroying in 10 seconds..." % (YELLOW, NORMAL))
         time.sleep(10)
         stop()
     print (" * Destroying container " + containername + "...")
     result = os.popen("lxc-destroy -n " + containername).read()
-    print ("   %s%s successfully destroyed %s" % (GREEN, containername, NORMAL))
+    print ("   %s%s successfully destroyed %s"
+           % (GREEN, containername, NORMAL))
 
 # Tests
 
@@ -266,7 +309,10 @@ try:
         stop()
     if function == "toggleautostart":
         toggle_autostart()
+    if function == "status":
+        status()
 except IndexError:
     examples()
 except KeyboardInterrupt:
-    print ("\n   %sINFO:%s Aborting operation, at your request" % (CYAN, NORMAL))
+    print ("\n   %sINFO:%s Aborting operation, at your request"
+           % (CYAN, NORMAL))

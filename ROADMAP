@@ -2,14 +2,14 @@
 
 
 0.1
- * stop a container
- * start a container
- * destroy a container via lxc-destroy
- * create a container via lxc-create
- * freeze a container
- * unfreeze a container
+ * [x] stop a container
+ * [x] start a container
+ * destroy a container via python-lxc
+ * create a container via python-lxc
+ * [x] freeze a container
+ * [x] unfreeze a container
  * proper command line parsing
- * working status as there was in rlxc
+ * working status page
 
 0.2
  * all strings are translated
