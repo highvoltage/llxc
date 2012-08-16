@@ -121,7 +121,7 @@ def examples():
 
 def list():
     """Provides a list of LXC Containers"""
-    print ("%s  NAME \t\t TASKS \t   STATUS \tIP_ADDR_%s%s"
+    print ("%s   NAME \tTASKS \t   STATUS \tIP_ADDR_%s%s"
            % (CYAN, args.interface.swapcase(), NORMAL) )
     for container in glob.glob(CONTAINER_PATH + '*/config'):
         containername = container.replace(CONTAINER_PATH,"").rstrip("/config")
@@ -139,7 +139,7 @@ def list():
                         containername + "/tasks", 'r'))
         except IOError:
             tasks = "00"
-        print ("  %s \t %s \t   %s \t%s" % (containername, tasks,
+        print ("   %s \t %s \t   %s \t%s" % (containername, tasks,
 	       cont.state.swapcase(), ipaddress))
 
 def status():
@@ -261,3 +261,5 @@ try:
         toggle_autostart()
 except IndexError:
     examples()
+except KeyboardInterrupt:
+    print ("\n   %sINFO:%s Aborting operation, at your request" % (CYAN, NORMAL))
