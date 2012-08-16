@@ -14,7 +14,7 @@
 0.2
  * all strings are translated
  * generating of ssh keys
- * updateing of ssh keys in clients
+ * updating of ssh keys in clients
  * setting up of ssh service in guests
  * entering guests via ssh
  * executing commands via ssh
