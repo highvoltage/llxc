@@ -66,6 +66,14 @@ parser_toggleautostart = sp.add_parser('toggleautostart',
 parser_toggleautostart.add_argument('containername', type=str,
                                     help='Name of the container')
 
+parser_freeze = sp.add_parser('freeze', help='Freezes a container')
+parser_freeze.add_argument('containername', type=str,
+                          help='Name of the container')
+
+parser_unfreeze = sp.add_parser('unfreeze', help='Unfreezes a container')
+parser_unfreeze.add_argument('containername', type=str,
+                          help='Name of the container')
+
 parser_list = sp.add_parser('list', help='Displays a list of containers')
 
 args = parser.parse_args()
@@ -187,12 +195,12 @@ def freeze():
     if lxc.Container(containername).state == "RUNNING":
         print (" * Freezing container: %s..." % (containername))
         cont = lxc.Container(containername)
-            if cont.freeze():
-                print ("    %scontainer successfully frozen%s"
-                       % (GREEN, NORMAL))
-            else:
-                print ("    %ERROR:% Something went wrong, please check status."
-                       % (RED, NORMAL))
+        if cont.freeze():
+            print ("    %scontainer successfully frozen%s"
+                   % (GREEN, NORMAL))
+        else:
+            print ("    %ERROR:% Something went wrong, please check status."
+                   % (RED, NORMAL))
     else:
         print ("   %sERROR:%s The container state is %s, \
                 it needs to be in the 'RUNNING' state in \
@@ -202,20 +210,20 @@ def unfreeze():
     """Unfreeze LXC Container"""
     requires_root()
     confirm_container_existance()
-    print (" * Unfreezing container: %s..." % (containername))
     if lxc.Container(containername).state == "FROZEN":
         print (" * Unfreezing container: %s..." % (containername))
         cont = lxc.Container(containername)
-            if cont.unfreeze():
-                print ("    %scontainer successfully unfrozen%s"
-                       % (GREEN, NORMAL))
-            else:
-                print ("    %sERROR:%s Something went wrong, please check status."
+        if cont.unfreeze():
+            print ("    %scontainer successfully unfrozen%s"
+                   % (GREEN, NORMAL))
+        else:
+            print ("    %sERROR:%s Something went wrong, please check status."
+                   % (RED, NORMAL))
     else:
         print ("   %sERROR:%s The container state is %s, \
                 it needs to be in the 'FROZEN' state in \
                 order to be unfrozen."
-                % (RED, NORMAL, lxc.Container(containername).state)
+                % (RED, NORMAL, lxc.Container(containername).state))
 
 
 def toggle_autostart():
@@ -311,6 +319,10 @@ try:
         toggle_autostart()
     if function == "status":
         status()
+    if function == "freeze":
+        freeze()
+    if function == "unfreeze":
+        unfreeze()
 except IndexError:
     examples()
 except KeyboardInterrupt:
