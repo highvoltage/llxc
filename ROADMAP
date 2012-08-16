@@ -1,0 +1,28 @@
+0.01 - Current Unreleased Version
+
+
+0.1
+ * stop a container
+ * start a container
+ * destroy a container via lxc-destroy
+ * create a container via lxc-create
+ * freeze a container
+ * unfreeze a container
+ * proper command line parsing
+ * working status as there was in rlxc
+
+0.2
+ * all strings are translated
+ * generating of ssh keys
+ * updateing of ssh keys in clients
+ * setting up of ssh service in guests
+ * entering guests via ssh
+ * executing commands via ssh
+
+0.3
+ * native destroying of containers
+ * diagnostics of lxc system
+ * netstat for containers
+
+0.4
+ * native container creation, even if crude
