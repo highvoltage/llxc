@@ -266,7 +266,7 @@ def destroy():
     """Destroy LXC Container"""
     requires_root()
     confirm_container_existance()
-    if container_is_running():
+    if lxc.Container(containername).state == "RUNNING"
         print (" * %sWARNING:%s Container is running, \
                stopping before destroying in 10 seconds..." % (YELLOW, NORMAL))
         time.sleep(10)
@@ -299,12 +299,6 @@ def confirm_container_existance():
                   % (RED, NORMAL) ))
         sys.exit(404)
 
-def container_is_running():
-    """Check whether a container is running."""
-    if lxc.Container(containername).state == "RUNNING":
-        return 1 
-    else:
-        return 0
 # End tests
 
 # Run functions
