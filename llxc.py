@@ -183,10 +183,15 @@ def status():
 
     print (CYAN + """\
     Status report for container:  """ + containername + NORMAL + """
+                         System:
                     LXC Version:  %s\
                        LXC Host:  %s\
+
+                         Memory:
                    Memory Usage:  %s MiB
                      Swappiness:  %s\
+
+                          State:
          Autostart on host boot:  %s
                   Current state:  %s
               Running processes:  %s
@@ -288,7 +293,7 @@ def create():
     # TODO: warn at least if we're very low on memory or using a lot of swap
     print (" * Creating container: %s..." % (containername))
     cont = lxc.Container(containername)
-    if cont.create():
+    if cont.create(ubuntu):
         print ("   %scontainer %s successfully created%s"
                % (GREEN, containername, NORMAL))
     else:
