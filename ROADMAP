@@ -9,7 +9,7 @@ LLXC Roadmap.
  * [x] freeze a container
  * [x] unfreeze a container
  * [ ] proper command line parsing
- * [ ] working status page, even if crude
+ * [x] working status page, even if crude
  * [x] basic container listing
 
 0.2 - Future Release
@@ -38,6 +38,9 @@ LLXC Roadmap.
 0.4 - Future Release
  * [ ] Basic awareness of other hosts
  * [ ] Split functions off of llxc script
+ * [ ] configuration profiles awareness for puppet
+ * [ ] configuration profiles awareness for bcfg2
+ * [ ] more hooks... everywhere
 
 0.5 - Future Release
  * [ ] Initial interface based on rlxc interface

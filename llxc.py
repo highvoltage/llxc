@@ -117,8 +117,11 @@ def examples():
     print ( """    * llxc enter containername
     * llxc exec containername
     * llxc status containername
-    * llxc stop containername
     * llxc start containername
+    * llxc halt containername
+    * llxc stop containername
+    * llxc freeze containername
+    * llxc unfreeze containername
     * llxc create containername
     * llxc destroy containername
     * llxc toggleautostart containername
@@ -156,26 +159,39 @@ def list():
 
 def status():
     """Prints a status report for specified container"""
+    # TODO: Add disk usage depending on LVM or plain directory
+    # TODO: Add cpuset.cpu - show how many cpus are used
     confirm_container_existance()
-    cont = lxc.Container(containername)
+    #cont = lxc.Container(containername)
+
+    # gather some data
     state = lxc.Container(containername).state.swapcase()
     if os.path.lexists(AUTOSTART_PATH + containername):
         autostart = "enabled"
     else:
         autostart = "disabled"
+    lxcversion = os.popen("lxc-version | awk {'print $3'}").read()
+    #TODO: Add version to this line:
+    lxchost = os.popen("lsb_release -d | awk '{print $2, $3}'").read()
+    tasks = sum(1 for line in open(CGROUP_PATH + "cpuset/lxc/" +
+                containername + "/tasks", 'r'))
+    swappiness = open(CGROUP_PATH + "memory/lxc/" + containername + "/memory.swappiness",
+                      'r').read()
+    memusage = open(CGROUP_PATH + "memory/lxc/" + containername + "/memory.memsw.usage_in_bytes", 'r').read()
+    # FIXME: Add swap usage
+    # swapusage = open(CGROUP_PATH + "memory/lxc/" + containername + "/..."
+
     print (CYAN + """\
-    Status report for container:  """ + "container" + NORMAL + """
-                    LXC Version:  %s
-                       LXC Host:  %s
-                     Disk Usage:  %s
-                   Memory Usage:  %s
-                     Swap Usage:  %s
-                     Swappiness:  %s
+    Status report for container:  """ + containername + NORMAL + """
+                    LXC Version:  %s\
+                       LXC Host:  %s\
+                   Memory Usage:  %s\
+                     Swappiness:  %s\
          Autostart on host boot:  %s
                   Current state:  %s
               Running processes:  %s
-    """ % ('lxcversion', 'lxchost', 'diskusage', 'memusage', 'swap', \
-           'swappiness', autostart, state, 'runproc'))
+    """ % (lxcversion, lxchost, memusage, \
+           swappiness, autostart, state, tasks))
     print (CYAN + "    Tip: " + NORMAL + \
            "'llxc status' is experimental and subject to behavioural change")
 
@@ -224,9 +240,7 @@ def freeze():
             print ("    %ERROR:% Something went wrong, please check status."
                    % (RED, NORMAL))
     else:
-        print ("   %sERROR:%s The container state is %s, \
-                it needs to be in the 'RUNNING' state in \
-                order to be frozen." % (RED, NORMAL))
+        print ("   %sERROR:%s The container state is %s, it needs to be in the 'RUNNING' state in order to be frozen." % (RED, NORMAL))
 
 def unfreeze():
     """Unfreeze LXC Container"""
@@ -279,7 +293,7 @@ def create():
                % (GREEN, containername, NORMAL))
     else:
         print ("   %ERROR:% Something went wrong, please check status"
-               % (RED, NOMRAL))
+               % (RED, NORMAL))
     toggle_autostart()
     start()
 
