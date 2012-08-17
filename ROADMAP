@@ -3,7 +3,7 @@ LLXC Roadmap.
 0.1 - Current Development Version
  * [x] stop a container
  * [x] start a container
- * [ ] shutdown - SIGPWR to container
+ * [x] halt (lxc shutdown) - SIGPWR to container
  * [x] destroy a container via python-lxc
  * [x] create a container via python-lxc
  * [x] freeze a container
@@ -11,7 +11,6 @@ LLXC Roadmap.
  * [ ] proper command line parsing
  * [ ] working status page, even if crude
  * [x] basic container listing
- * [ ] rename stop to kill and shutdown to stop
 
 0.2 - Future Release
  * [ ] clone a container

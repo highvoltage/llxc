@@ -61,6 +61,10 @@ parser_start = sp.add_parser('start', help='Starts a container')
 parser_start.add_argument('containername', type=str,
                           help='Name of the container')
 
+parser_halt = sp.add_parser('halt', help='Shuts down a container')
+parser_halt.add_argument('containername', type=str,
+                          help='Name of the container')
+
 parser_toggleautostart = sp.add_parser('toggleautostart',
     help='Toggles the state of starting up on boot time for a container')
 parser_toggleautostart.add_argument('containername', type=str,
@@ -183,10 +187,21 @@ def start():
     """Start LXC Container"""
     # TODO: confirm that networking (ie, lxcbr) is available before starting
     requires_root()
+    confirm_container_existance()
     print (" * Starting %s..." % (containername))
     cont = lxc.Container(containername)
     if cont.start():
         print ("   %s%s sucessfully started%s"
+               % (GREEN, containername, NORMAL))
+
+def halt():
+    "Shut Down LXC Container"""
+    requires_root()
+    confirm_container_existance()
+    print (" * Shutting down %s..." % (containername))
+    cont = lxc.Container(containername)
+    if cont.shutdown():
+        print ("   %s%s successfully shut down%s"
                % (GREEN, containername, NORMAL))
 
 def freeze():
@@ -323,6 +338,8 @@ try:
         freeze()
     if function == "unfreeze":
         unfreeze()
+    if function == "halt":
+        halt()
 except IndexError:
     examples()
 except KeyboardInterrupt:
