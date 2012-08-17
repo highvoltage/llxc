@@ -157,6 +157,12 @@ def list():
 def status():
     """Prints a status report for specified container"""
     confirm_container_existance()
+    cont = lxc.Container(containername)
+    state = lxc.Container(containername).state.swapcase()
+    if os.path.lexists(AUTOSTART_PATH + containername):
+        autostart = "enabled"
+    else:
+        autostart = "disabled"
     print (CYAN + """\
     Status report for container:  """ + "container" + NORMAL + """
                     LXC Version:  %s
@@ -169,7 +175,7 @@ def status():
                   Current state:  %s
               Running processes:  %s
     """ % ('lxcversion', 'lxchost', 'diskusage', 'memusage', 'swap', \
-           'swappiness', 'autostart', 'state', 'runproc'))
+           'swappiness', autostart, state, 'runproc'))
     print (CYAN + "    Tip: " + NORMAL + \
            "'llxc status' is experimental and subject to behavioural change")
 

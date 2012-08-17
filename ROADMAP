@@ -32,6 +32,12 @@ LLXC Roadmap.
  * [ ] archive containers
  * [ ] unarchive containers
  * [ ] logging
+ * [ ] set config key
+ * [ ] clear config key
 
 0.4 - Future Release
  * [ ] Basic awareness of other hosts
+ * [ ] Split functions off of llxc script
+
+0.5 - Future Release
+ * [ ] Initial interface based on rlxc interface
