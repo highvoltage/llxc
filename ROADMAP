@@ -14,6 +14,8 @@ LLXC Roadmap.
 
 0.2 - Future Release
  * [ ] clone a container
+ * [ ] archive a container
+ * [ ] unarchive a container
  * [ ] all strings are translable
  * [ ] generating of ssh keys
  * [ ] updating of ssh keys in clients
@@ -29,9 +31,7 @@ LLXC Roadmap.
  * [ ] printconfig - show config for container
  * [ ] archive containers
  * [ ] unarchive containers
-
-0.4 - Future Release
  * [ ] logging
 
-0.5 - Future Release
+0.4 - Future Release
  * [ ] Basic awareness of other hosts
