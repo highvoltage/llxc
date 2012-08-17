@@ -181,6 +181,7 @@ def stop():
 
 def start():
     """Start LXC Container"""
+    # TODO: confirm that networking (ie, lxcbr) is available before starting
     requires_root()
     print (" * Starting %s..." % (containername))
     cont = lxc.Container(containername)
@@ -248,11 +249,15 @@ def create():
     """Create LXC Container"""
     requires_root()
     # TODO: check that container does not exist
+    # TODO: check that we have suficient disk space on LXC partition first
     print (" * Creating container: %s..." % (containername))
-    result = os.popen("lxc-create -n %s -t ubuntu" % (containername)).read()
-    # TODO: check that container is created successfully first
-    print ("   %scontainer %s successfully created%s"
-           % (GREEN, containername, NORMAL))
+    cont = lxc.Container(containername)
+    if cont.create():
+        print ("   %scontainer %s successfully created%s"
+               % (GREEN, containername, NORMAL))
+    else:
+        print ("   %ERROR:% Something went wrong, please check status"
+               % (RED, NOMRAL))
     toggle_autostart()
     start()
 

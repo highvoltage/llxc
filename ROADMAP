@@ -5,7 +5,7 @@ LLXC Roadmap.
  * [x] start a container
  * [ ] shutdown - SIGPWR to container
  * [x] destroy a container via python-lxc
- * [ ] create a container via python-lxc
+ * [x] create a container via python-lxc
  * [x] freeze a container
  * [x] unfreeze a container
  * [ ] proper command line parsing
