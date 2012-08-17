@@ -177,7 +177,7 @@ def status():
                 containername + "/tasks", 'r'))
     swappiness = open(CGROUP_PATH + "memory/lxc/" + containername + "/memory.swappiness",
                       'r').read()
-    memusage = open(CGROUP_PATH + "memory/lxc/" + containername + "/memory.memsw.usage_in_bytes", 'r').read()
+    memusage = int(open(CGROUP_PATH + "memory/lxc/" + containername + "/memory.memsw.usage_in_bytes", 'r').read())/1000/1000
     # FIXME: Add swap usage
     # swapusage = open(CGROUP_PATH + "memory/lxc/" + containername + "/..."
 
@@ -185,7 +185,7 @@ def status():
     Status report for container:  """ + containername + NORMAL + """
                     LXC Version:  %s\
                        LXC Host:  %s\
-                   Memory Usage:  %s\
+                   Memory Usage:  %s MiB
                      Swappiness:  %s\
          Autostart on host boot:  %s
                   Current state:  %s

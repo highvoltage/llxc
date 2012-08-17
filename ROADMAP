@@ -23,14 +23,14 @@ LLXC Roadmap.
  * [ ] entering guests via ssh
  * [ ] executing commands via ssh
  * [ ] startall - to start all containers
+ * [ ] haltall - halt all containers
+ * [ ] stopall - stopall containers
  * [ ] runinall - exec a command in all containers
 
 0.3 - Future Release
  * [ ] diagnostics of lxc system
  * [ ] netstat for containers
  * [ ] printconfig - show config for container
- * [ ] archive containers
- * [ ] unarchive containers
  * [ ] logging
  * [ ] set config key
  * [ ] clear config key
