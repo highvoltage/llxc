@@ -250,6 +250,7 @@ def create():
     requires_root()
     # TODO: check that container does not exist
     # TODO: check that we have suficient disk space on LXC partition first
+    # TODO: warn at least if we're very low on memory or using a lot of swap
     print (" * Creating container: %s..." % (containername))
     cont = lxc.Container(containername)
     if cont.create():
@@ -266,17 +267,19 @@ def destroy():
     """Destroy LXC Container"""
     requires_root()
     confirm_container_existance()
-    if lxc.Container(containername).state == "RUNNING"
-        print (" * %sWARNING:%s Container is running, \
-               stopping before destroying in 10 seconds..." % (YELLOW, NORMAL))
+    if lxc.Container(containername).state == "RUNNING":
+        print (" * %sWARNING:%s Container is running, stopping before destroying in 10 seconds..."
+               % (YELLOW, NORMAL))
         time.sleep(10)
         stop()
     print (" * Destroying container " + containername + "...")
     cont = lxc.Container(containername)
     if cont.destroy():
-        print ("   %scontainer successfully destroyed%s" % (GREEN, NORMAL))
-    print ("   %s%s successfully destroyed %s"
-           % (GREEN, containername, NORMAL))
+        print ("   %s%s successfully destroyed %s"
+               % (GREEN, containername, NORMAL))
+    else:
+        print ("   %sERROR:%s Something went wrong, please check status"
+               % (RED, NORMAL))
 
 # Tests
 
@@ -298,8 +301,6 @@ def confirm_container_existance():
         print (_( "   %sERROR 400:%s You must specify a container."
                   % (RED, NORMAL) ))
         sys.exit(404)
-
-# End tests
 
 # Run functions
 try:

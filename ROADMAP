@@ -28,9 +28,11 @@ LLXC Roadmap.
  * [ ] diagnostics of lxc system
  * [ ] netstat for containers
  * [ ] printconfig - show config for container
+ * [ ] archive containers
+ * [ ] unarchive containers
 
 0.4 - Future Release
- * [ ]
+ * [ ] logging
 
 0.5 - Future Release
  * [ ] Basic awareness of other hosts
