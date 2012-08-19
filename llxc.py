@@ -39,9 +39,9 @@ CGROUP_PATH = "/sys/fs/cgroup/"
 
 # Set colours, unless llxcmono is set
 try:
-    os.environ['llxcmono']
-    GRAY = RED = GREEN = YELLOW = BLUE = \
-           PURPLE = CYAN = NORMAL = ""
+    if os.environ['llxcmono']:
+      GRAY = RED = GREEN = YELLOW = BLUE = \
+             PURPLE = CYAN = NORMAL = ""
 except KeyError:
     GRAY   = "\033[1;30m"
     RED    = "\033[1;31m"
@@ -76,6 +76,7 @@ def examples():
     * Tell your friends to use LXC!
     """ )
 
+
 def listing():
     """Provides a list of LXC Containers"""
     print ("%s   NAME \tTASKS \t   STATUS \tIP_ADDR_%s%s"
@@ -98,6 +99,7 @@ def listing():
             tasks = "00"
         print ("   %s \t %s \t   %s \t%s" % (containername, tasks,
 	       cont.state.swapcase(), ipaddress))
+
 
 def status():
     """Prints a status report for specified container"""
@@ -142,15 +144,27 @@ def status():
     print (CYAN + "    Tip: " + NORMAL + \
            "'llxc status' is experimental and subject to behavioural change")
 
-def stop():
-    """Stop LXC Container"""
+
+def kill():
+    """Force stop LXC container"""
     requires_root()
     confirm_container_existance()
-    print (" * Stopping %s..." % (containername))
+    print (" * Killing %s..." % (containername))
     cont = lxc.Container(containername)
     if cont.stop():
-        print ("   %s%s sucessfully stopped%s"
+        print ("   %s%s sucessfully killed%s"
                % (GREEN, containername, NORMAL))
+
+def stop():
+    """Displays information about kill and halt"""
+    print ("\n"
+           "    %sTIP:%s 'stop' is ambiguous, use one of the following instead:"
+           "\n\n"
+           "    halt: trigger a shut down in the container and safely shut down"
+           "\n"
+           "    kill: stop all processes running inside the container \n"
+           % (CYAN, NORMAL))
+
 
 def start():
     """Start LXC Container"""
@@ -163,6 +177,7 @@ def start():
         print ("   %s%s sucessfully started%s"
                % (GREEN, containername, NORMAL))
 
+
 def halt():
     "Shut Down LXC Container"""
     requires_root()
@@ -172,6 +187,7 @@ def halt():
     if cont.shutdown():
         print ("   %s%s successfully shut down%s"
                % (GREEN, containername, NORMAL))
+
 
 def freeze():
     """Freeze LXC Container"""
@@ -188,8 +204,10 @@ def freeze():
                    % (RED, NORMAL))
     else:
         print ("   %sERROR:%s The container state is %s,\n"
-               "          it needs to be in the 'RUNNING' state in order to be frozen."
+               "          it needs to be in the 'RUNNING'"
+               " state in order to be frozen."
                 % (RED, NORMAL, lxc.Container(containername).state))
+
 
 def unfreeze():
     """Unfreeze LXC Container"""
@@ -251,7 +269,8 @@ def destroy():
     requires_root()
     confirm_container_existance()
     if lxc.Container(containername).state == "RUNNING":
-        print (" * %sWARNING:%s Container is running, stopping before destroying in 10 seconds..."
+        print (" * %sWARNING:%s Container is running, stopping before"
+               " destroying in 10 seconds..."
                % (YELLOW, NORMAL))
         time.sleep(10)
         stop()
@@ -264,6 +283,60 @@ def destroy():
         print ("   %sERROR:%s Something went wrong, please check status"
                % (RED, NORMAL))
 
+
+def clone():
+    """Clone LXC container"""
+    requires_root()
+    confirm_container_existance()
+    cont = lxc.Container(containername)
+    print (" * Cloning %s in to %s..." % (containername, "new container"))
+    if cont.clone("newcont01"):
+        print ("   %scloning operation succeeded")
+    else:
+         print ("   %sERROR:%s Something went wrong, please check status"
+         % (RED, NORMAL))
+
+
+def archive():
+    """Archive LXC container by tarring it up and removing it."""
+    requires_root()
+    confirm_container_existance()
+    print (" * Archiving container: %s..." % (containername))
+    #tar -czf
+    # rm container
+    print ("   %scontainer archived in to %s%s.tar.gz%s"
+            % (GREEN, CONTAINER_PATH, containername, NORMAL))
+
+
+def unarchive():
+    """Unarchive LXC container"""
+    requires_root()
+    #TODO: confirm container doesn't exist
+    print (" * Unarchiving container: %s..." % (containername))
+    # tar -xc in python
+    # rm tarball
+    print ("   %scontainer unarchived%s" % (GREEN, NORMAL))
+
+
+def startall():
+    """Start all LXC containers"""
+    requires_root()
+    print (" * Starting all containers...")
+    # make a loop, if already if already started, skip
+    print ("The following containers will be started:")
+
+
+def haltall():
+    """Halt all LXC containers"""
+    requires_root()
+    print (" * Halting all containers...")
+    # make a loop, if already in stopped state, skip
+    print ("The following containers will be halted:")
+
+def killall():
+    """Kill all LXC containers"""
+    print ("Function not implemented")
+
 # Tests
 
 def requires_root():
@@ -272,6 +345,7 @@ def requires_root():
         print(_( "   %sERROR 403:%s This function requires root. \
                  Further execution has been aborted." % (RED, NORMAL) ))
         sys.exit(403) 
+
 
 def confirm_container_existance():
     """Checks whether specified container exists before execution."""
@@ -284,6 +358,7 @@ def confirm_container_existance():
         print (_( "   %sERROR 400:%s You must specify a container."
                   % (RED, NORMAL) ))
         sys.exit(404)
+
 
 # Argument parsing
 
@@ -315,7 +390,7 @@ sp_status.add_argument('containername', type=str,
                         help='Name of the container')
 sp_status.set_defaults(function=status)
 
-sp_stop = sp.add_parser('stop', help='Stops a container')
+sp_stop = sp.add_parser('stop', help='Not used')
 sp_stop.add_argument('containername', type=str,
                       help='Name of the container')
 sp_stop.set_defaults(function=stop)
@@ -324,6 +399,12 @@ sp_start = sp.add_parser('start', help='Starts a container')
 sp_start.add_argument('containername', type=str,
                        help='Name of the container')
 sp_start.set_defaults(function=start)
+
+sp_kill = sp.add_parser('kill', help='Kills a container')
+sp_kill.add_argument('containername', type=str,
+                      help='Name of the container to be killed')
+sp_kill.set_defaults(function=kill)
+
 
 sp_halt = sp.add_parser('halt', help='Shuts down a container')
 sp_halt.add_argument('containername', type=str,
@@ -348,6 +429,32 @@ sp_unfreeze.set_defaults(function=unfreeze)
 
 sp_list = sp.add_parser('list', help='Displays a list of containers')
 sp_list.set_defaults(function=listing)
+
+sp_clone = sp.add_parser('clone', help='Clone a container into a new one')
+sp_clone.add_argument('containername', type=str,
+                       help='Name of the container to be cloned')
+sp_clone.add_argument('newcontainername', type=str,
+                       help='Name of the new container to be created')
+sp_clone.set_defaults(function=clone)
+
+sp_archive = sp.add_parser('archive', help='Archive a container')
+sp_archive.add_argument('containername', type=str,
+                        help="Name of the container to be archived")
+sp_archive.set_defaults(function=archive)
+
+sp_unarchive = sp.add_parser('unarchive', help='Unarchive a container')
+sp_unarchive.add_argument('containername', type=str,
+                        help="Name of the container to be unarchived")
+sp_unarchive.set_defaults(function=unarchive)
+
+sp_startall = sp.add_parser('startall', help='Start all stopped containers')
+sp_startall.set_defaults(function=startall)
+
+sp_haltall = sp.add_parser('haltall', help='Halt all started containers')
+sp_haltall.set_defaults(function=haltall)
+
+sp_killall = sp.add_parser('killall', help='Kill all started containers')
+sp_killall.set_defaults(function=killall)
 
 args = parser.parse_args()
 
