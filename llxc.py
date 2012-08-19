@@ -293,7 +293,7 @@ def create():
     # TODO: warn at least if we're very low on memory or using a lot of swap
     print (" * Creating container: %s..." % (containername))
     cont = lxc.Container(containername)
-    if cont.create(ubuntu):
+    if cont.create('ubuntu'):
         print ("   %scontainer %s successfully created%s"
                % (GREEN, containername, NORMAL))
     else:
