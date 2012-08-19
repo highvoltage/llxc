@@ -29,64 +29,6 @@ from gettext import gettext as _
 # Set up translations via gettext
 gettext.textdomain("llxc")
 
-parser = argparse.ArgumentParser(
-         description=_("LLXC Linux Container Management"),
-         formatter_class=argparse.RawTextHelpFormatter)
-
-# Optional arguements
-parser.add_argument("-if", "--interface", type=str, default="eth0",
-    help=_("Ethernet Interface, eg: eth0, eth1"))
-parser.add_argument("-ip", "--ipstack", type=str, default="ipv4",
-    help=_("Network IP to list, ex: ipv4, ipv6"))
-
-sp = parser.add_subparsers(help='sub command help')
-
-parser_create = sp.add_parser('create', help='Create a container')
-parser_create.add_argument('containername', type=str,
-                           help='name of the container')
-
-parser_destroy = sp.add_parser('destroy', help='Destroy a container')
-parser_destroy.add_argument('containername', type=str,
-                            help='name of the container')
-
-parser_status = sp.add_parser('status', help='Display container status')
-parser_status.add_argument('containername', type=str,
-                           help='Name of the container')
-
-parser_stop = sp.add_parser('stop', help='Stops a container')
-parser_stop.add_argument('containername', type=str,
-                         help='Name of the container')
-
-parser_start = sp.add_parser('start', help='Starts a container')
-parser_start.add_argument('containername', type=str,
-                          help='Name of the container')
-
-parser_halt = sp.add_parser('halt', help='Shuts down a container')
-parser_halt.add_argument('containername', type=str,
-                          help='Name of the container')
-
-parser_toggleautostart = sp.add_parser('toggleautostart',
-    help='Toggles the state of starting up on boot time for a container')
-parser_toggleautostart.add_argument('containername', type=str,
-                                    help='Name of the container')
-
-parser_freeze = sp.add_parser('freeze', help='Freezes a container')
-parser_freeze.add_argument('containername', type=str,
-                          help='Name of the container')
-
-parser_unfreeze = sp.add_parser('unfreeze', help='Unfreezes a container')
-parser_unfreeze.add_argument('containername', type=str,
-                          help='Name of the container')
-
-parser_list = sp.add_parser('list', help='Displays a list of containers')
-
-args = parser.parse_args()
-
-try:
-    containername = args.containername
-except AttributeError:
-    pass
-
 #print("You chose to list the " + args.ipstack +
 #      " address on " + args.interface)
 
@@ -134,7 +76,7 @@ def examples():
     * Tell your friends to use LXC!
     """ )
 
-def list():
+def listing():
     """Provides a list of LXC Containers"""
     print ("%s   NAME \tTASKS \t   STATUS \tIP_ADDR_%s%s"
            % (CYAN, args.interface.swapcase(), NORMAL) )
@@ -245,7 +187,9 @@ def freeze():
             print ("    %ERROR:% Something went wrong, please check status."
                    % (RED, NORMAL))
     else:
-        print ("   %sERROR:%s The container state is %s, it needs to be in the 'RUNNING' state in order to be frozen." % (RED, NORMAL))
+        print ("   %sERROR:%s The container state is %s,\n"
+               "          it needs to be in the 'RUNNING' state in order to be frozen."
+                % (RED, NORMAL, lxc.Container(containername).state))
 
 def unfreeze():
     """Unfreeze LXC Container"""
@@ -261,13 +205,12 @@ def unfreeze():
             print ("    %sERROR:%s Something went wrong, please check status."
                    % (RED, NORMAL))
     else:
-        print ("   %sERROR:%s The container state is %s, \
-                it needs to be in the 'FROZEN' state in \
-                order to be unfrozen."
+        print ("   %sERROR:%s The container state is %s,\n"
+               "   it needs to be in the 'FROZEN' state in order to be unfrozen."
                 % (RED, NORMAL, lxc.Container(containername).state))
 
 
-def toggle_autostart():
+def toggleautostart():
     """Toggle autostart of LXC Container"""
     requires_root()
     confirm_container_existance()
@@ -299,7 +242,7 @@ def create():
     else:
         print ("   %ERROR:% Something went wrong, please check status"
                % (RED, NORMAL))
-    toggle_autostart()
+    toggleautostart()
     start()
 
 
@@ -342,31 +285,80 @@ def confirm_container_existance():
                   % (RED, NORMAL) ))
         sys.exit(404)
 
+# Argument parsing
+
+parser = argparse.ArgumentParser(
+         description=_("LLXC Linux Container Management"),
+         formatter_class=argparse.RawTextHelpFormatter)
+
+# Optional arguements
+
+parser.add_argument("-if", "--interface", type=str, default="eth0",
+                     help=_("Ethernet Interface, eg: eth0, eth1"))
+parser.add_argument("-ip", "--ipstack", type=str, default="ipv4",
+                     help=_("Network IP to list, ex: ipv4, ipv6"))
+
+sp = parser.add_subparsers(help='sub command help')
+
+sp_create = sp.add_parser('create', help='Create a container')
+sp_create.add_argument('containername', type=str,
+                        help='name of the container')
+sp_create.set_defaults(function=create)
+
+sp_destroy = sp.add_parser('destroy', help='Destroy a container')
+sp_destroy.add_argument('containername', type=str,
+                         help='name of the container')
+sp_destroy.set_defaults(function=destroy)
+
+sp_status = sp.add_parser('status', help='Display container status')
+sp_status.add_argument('containername', type=str,
+                        help='Name of the container')
+sp_status.set_defaults(function=status)
+
+sp_stop = sp.add_parser('stop', help='Stops a container')
+sp_stop.add_argument('containername', type=str,
+                      help='Name of the container')
+sp_stop.set_defaults(function=stop)
+
+sp_start = sp.add_parser('start', help='Starts a container')
+sp_start.add_argument('containername', type=str,
+                       help='Name of the container')
+sp_start.set_defaults(function=start)
+
+sp_halt = sp.add_parser('halt', help='Shuts down a container')
+sp_halt.add_argument('containername', type=str,
+                          help='Name of the container')
+sp_halt.set_defaults(function=halt)
+
+sp_toggleautostart = sp.add_parser('toggleautostart',
+    help='Toggles the state of starting up on boot time for a container')
+sp_toggleautostart.add_argument('containername', type=str,
+                                    help='Name of the container')
+sp_toggleautostart.set_defaults(function=toggleautostart)
+
+sp_freeze = sp.add_parser('freeze', help='Freezes a container')
+sp_freeze.add_argument('containername', type=str,
+                          help='Name of the container')
+sp_freeze.set_defaults(function=freeze)
+
+sp_unfreeze = sp.add_parser('unfreeze', help='Unfreezes a container')
+sp_unfreeze.add_argument('containername', type=str,
+                          help='Name of the container')
+sp_unfreeze.set_defaults(function=unfreeze)
+
+sp_list = sp.add_parser('list', help='Displays a list of containers')
+sp_list.set_defaults(function=listing)
+
+args = parser.parse_args()
+
+try:
+    containername = args.containername
+except AttributeError:
+    pass
+
 # Run functions
 try:
-    function = sys.argv[1]
-    if function == "list":
-        list()
-    if function == "create":
-        create()
-    if function == "destroy":
-        destroy()
-    if function == "start":
-        start()
-    if function == "stop":
-        stop()
-    if function == "toggleautostart":
-        toggle_autostart()
-    if function == "status":
-        status()
-    if function == "freeze":
-        freeze()
-    if function == "unfreeze":
-        unfreeze()
-    if function == "halt":
-        halt()
-except IndexError:
-    examples()
+    args.function()
 except KeyboardInterrupt:
     print ("\n   %sINFO:%s Aborting operation, at your request"
            % (CYAN, NORMAL))

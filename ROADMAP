@@ -8,7 +8,7 @@ LLXC Roadmap.
  * [x] create a container via python-lxc
  * [x] freeze a container
  * [x] unfreeze a container
- * [ ] proper command line parsing
+ * [x] fix command line parsing
  * [x] working status page, even if crude
  * [x] basic container listing
 
