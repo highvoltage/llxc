@@ -14,16 +14,16 @@ LLXC Roadmap.
 
 0.2 - Current Developement Version
  * [i] clone a container
- * [i] archive a container
- * [i] unarchive a container
+ * [x] archive a container
+ * [x] unarchive a container
  * [ ] generating of ssh keys
  * [ ] updating of ssh keys in clients
  * [ ] setting up of ssh service in guests
  * [ ] entering guests via ssh
  * [ ] executing commands via ssh
- * [i] startall - to start all containers
- * [i] haltall - halt all containers
- * [i] stopall - stopall containers
+ * [x] startall - to start all containers
+ * [x] haltall - halt all containers
+ * [x] stopall - stopall containers
 
 0.3 - Future Release
  * [ ] diagnostics of lxc system
@@ -34,6 +34,7 @@ LLXC Roadmap.
  * [ ] clear config key
  * [ ] runinall - exec a command in all containers
  * [ ] all strings are translable
+ * [ ] go through all TODO and FIXMEs and fix what's fixable
 
 0.4 - Future Release
  * [ ] Basic awareness of other hosts

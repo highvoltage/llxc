@@ -23,7 +23,16 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import argparse, os, sys, lxc, glob, gettext, time
+import argparse
+import os
+import sys
+import lxc
+import glob
+import gettext
+import time
+import tarfile
+import shutil
+
 from gettext import gettext as _
 
 # Set up translations via gettext
@@ -233,15 +242,11 @@ def toggleautostart():
     requires_root()
     confirm_container_existance()
     if os.path.lexists(AUTOSTART_PATH + containername):
-        print ("   %sINFO:%s %s was set to autostart on boot"
-	       % (CYAN, NORMAL, containername) )
-        print ("   %sACTION:%s disabling autostart for %s..."
+        print ("   %saction:%s disabling autostart for %s..."
                % (GREEN, NORMAL, containername) )
         os.unlink(AUTOSTART_PATH + containername)
     else:
-        print ("   %sINFO%s: %s was unset to autostart on boot"
-	       % (CYAN, NORMAL, containername) )
-        print ("   %sACTION:%s enabling autostart for %s..."
+        print ("   %saction:%s enabling autostart for %s..."
                % (GREEN, NORMAL, containername) ) 
         os.symlink(CONTAINER_PATH + containername,
 	           AUTOSTART_PATH + containername)
@@ -301,11 +306,27 @@ def archive():
     """Archive LXC container by tarring it up and removing it."""
     requires_root()
     confirm_container_existance()
+    halt()
     print (" * Archiving container: %s..." % (containername))
-    #tar -czf
-    # rm container
+    #TODO: A progress indicator would be nice.
+    previous_path = os.getcwd()
+    os.chdir(CONTAINER_PATH)
+    tar = tarfile.open(containername + ".tar.gz", "w:gz")
+    tar.add(containername)
+    tar.close
+    os.chdir(previous_path)
     print ("   %scontainer archived in to %s%s.tar.gz%s"
-            % (GREEN, CONTAINER_PATH, containername, NORMAL))
+           % (GREEN, CONTAINER_PATH, containername, NORMAL))
+    print (" * Removing container path %s..."
+           % (CONTAINER_PATH + containername))
+    if os.path.isdir(CONTAINER_PATH + containername):
+        shutil.rmtree(CONTAINER_PATH + containername)
+    # TODO: tore the autostart path and restore it in unarchive
+    if os.path.lexists(AUTOSTART_PATH + containername):
+        print (" * Autostart was enabled for this container, disabling...")
+        os.remove(AUTOSTART_PATH + containername)
+    print ("   %sarchiving operation complete%s"
+           % (GREEN, NORMAL))
 
 
 def unarchive():
@@ -313,29 +334,51 @@ def unarchive():
     requires_root()
     #TODO: confirm container doesn't exist
     print (" * Unarchiving container: %s..." % (containername))
-    # tar -xc in python
-    # rm tarball
+    previous_path = os.getcwd()
+    os.chdir(CONTAINER_PATH)
+    tar = tarfile.open(CONTAINER_PATH + containername + ".tar.gz", "r:gz")
+    tar.extractall()
+    os.chdir(previous_path)
+    print ("   %stip:%s archive file not removed, container not started,\n"
+           "        autostart not restored automatically."
+           % (CYAN, NORMAL))
     print ("   %scontainer unarchived%s" % (GREEN, NORMAL))
 
 
 def startall():
     """Start all LXC containers"""
     requires_root()
-    print (" * Starting all containers...")
-    # make a loop, if already if already started, skip
-    print ("The following containers will be started:")
+    print (" * Starting all stopped containers:")
+    for container in glob.glob(CONTAINER_PATH + '*/config'):
+        global containername 
+        containername = container.replace(CONTAINER_PATH,"").rstrip("/config")
+        cont = lxc.Container(containername)
+        if lxc.Container(containername).state.swapcase() == "stopped":
+            start()
 
 
 def haltall():
     """Halt all LXC containers"""
     requires_root()
-    print (" * Halting all containers...")
-    # make a loop, if already in stopped state, skip
-    print ("The following containers will be halted:")
+    print (" * Halting all containers:")
+    for container in glob.glob(CONTAINER_PATH + '*/config'):
+        global containername 
+        containername = container.replace(CONTAINER_PATH,"").rstrip("/config")
+        cont = lxc.Container(containername)
+        if lxc.Container(containername).state.swapcase() == "running":
+            halt()
+
 
 def killall():
     """Kill all LXC containers"""
-    print ("Function not implemented")
+    print (" * Killing all running containers:")
+    for container in glob.glob(CONTAINER_PATH + '*/config'):
+        global containername
+        containername = container.replace(CONTAINER_PATH,"").rstrip("/config")
+        cont = lxc.Container(containername)
+        if lxc.Container(containername).state.swapcase() == "running":
+            kill()
+
 
 # Tests
 
@@ -467,5 +510,5 @@ except AttributeError:
 try:
     args.function()
 except KeyboardInterrupt:
-    print ("\n   %sINFO:%s Aborting operation, at your request"
+    print ("\n   %sinfo:%s Aborting operation, at your request"
            % (CYAN, NORMAL))
