@@ -21,6 +21,7 @@ Depends:
     * lxc, at least 0.8.0~rc1
     * python3
     * python3-lxc
+    * python3-crypto
 
 Planned Fixes:
     * The command line parsing is currently broken... I'll get to that :)

@@ -34,6 +34,7 @@ import tarfile
 import shutil
 
 from gettext import gettext as _
+from Crypto.PublicKey import RSA
 
 # Set up translations via gettext
 gettext.textdomain("llxc")
@@ -49,23 +50,24 @@ CGROUP_PATH = "/sys/fs/cgroup/"
 # Set colours, unless llxcmono is set
 try:
     if os.environ['llxcmono']:
-      GRAY = RED = GREEN = YELLOW = BLUE = \
-             PURPLE = CYAN = NORMAL = ""
+        GRAY = RED = GREEN = YELLOW = BLUE = \
+        PURPLE = CYAN = NORMAL = ""
 except KeyError:
-    GRAY   = "\033[1;30m"
-    RED    = "\033[1;31m"
-    GREEN  = "\033[1;32m"
+    GRAY = "\033[1;30m"
+    RED = "\033[1;31m"
+    GREEN = "\033[1;32m"
     YELLOW = "\033[1;33m"
-    BLUE   = "\033[1;34m"
+    BLUE = "\033[1;34m"
     PURPLE = "\033[1;35m"
-    CYAN   = "\033[1;36m"
+    CYAN = "\033[1;36m"
     NORMAL = "\033[0m"
+
 
 def examples():
     """Prints LLXC Usage"""
-    print ( "%sLLXC Linux Containers (llxc) \n\nExamples:%s"
-            % (CYAN, NORMAL) )
-    print ( """    * llxc enter containername
+    print ("%sLLXC Linux Containers (llxc) \n\nExamples:%s"
+            % (CYAN, NORMAL))
+    print ("""    * llxc enter containername
     * llxc exec containername
     * llxc status containername
     * llxc start containername
@@ -77,21 +79,21 @@ def examples():
     * llxc destroy containername
     * llxc toggleautostart containername
     * llxc -h
-    """ )
-    print ( "%sTips:%s" % (CYAN, NORMAL) )
-    print ( """    * Set environment variable llxcmono=1 to disable colours
-    * Type "llxc -h" for full command line usage 
+    """)
+    print ("%sTips:%s" % (CYAN, NORMAL))
+    print ("""    * Set environment variable llxcmono=1 to disable colours
+    * Type "llxc -h" for full command line usage
     * llxc gensshkeys is usually run when the llxc package is installed
     * Tell your friends to use LXC!
-    """ )
+    """)
 
 
 def listing():
     """Provides a list of LXC Containers"""
     print ("%s   NAME \tTASKS \t   STATUS \tIP_ADDR_%s%s"
-           % (CYAN, args.interface.swapcase(), NORMAL) )
+           % (CYAN, args.interface.swapcase(), NORMAL))
     for container in glob.glob(CONTAINER_PATH + '*/config'):
-        containername = container.replace(CONTAINER_PATH,"").rstrip("/config")
+        containername = container.replace(CONTAINER_PATH, "").rstrip("/config")
         cont = lxc.Container(containername)
         try:
             ipaddress = cont.get_ips(protocol="ipv4",
@@ -107,7 +109,7 @@ def listing():
         except IOError:
             tasks = "00"
         print ("   %s \t %s \t   %s \t%s" % (containername, tasks,
-	       cont.state.swapcase(), ipaddress))
+               cont.state.swapcase(), ipaddress))
 
 
 def status():
@@ -128,9 +130,10 @@ def status():
     lxchost = os.popen("lsb_release -d | awk '{print $2, $3}'").read()
     tasks = sum(1 for line in open(CGROUP_PATH + "cpuset/lxc/" +
                 containername + "/tasks", 'r'))
-    swappiness = open(CGROUP_PATH + "memory/lxc/" + containername + "/memory.swappiness",
-                      'r').read()
-    memusage = int(open(CGROUP_PATH + "memory/lxc/" + containername + "/memory.memsw.usage_in_bytes", 'r').read())/1000/1000
+    swappiness = open(CGROUP_PATH + "memory/lxc/" + containername +
+                      "/memory.swappiness", 'r').read()
+    memusage = int(open(CGROUP_PATH + "memory/lxc/" + containername +
+                   "/memory.memsw.usage_in_bytes", 'r').read()) / 1000 / 1000
     # FIXME: Add swap usage
     # swapusage = open(CGROUP_PATH + "memory/lxc/" + containername + "/..."
 
@@ -148,9 +151,9 @@ def status():
          Autostart on host boot:  %s
                   Current state:  %s
               Running processes:  %s
-    """ % (lxcversion, lxchost, memusage, \
+    """ % (lxcversion, lxchost, memusage,
            swappiness, autostart, state, tasks))
-    print (CYAN + "    Tip: " + NORMAL + \
+    print (CYAN + "    Tip: " + NORMAL +
            "'llxc status' is experimental and subject to behavioural change")
 
 
@@ -164,14 +167,18 @@ def kill():
         print ("   %s%s sucessfully killed%s"
                % (GREEN, containername, NORMAL))
 
+
 def stop():
     """Displays information about kill and halt"""
     print ("\n"
-           "    %sTIP:%s 'stop' is ambiguous, use one of the following instead:"
+           "    %sTIP:%s 'stop' is ambiguous, "
+           "use one of the following instead:"
            "\n\n"
-           "    halt: trigger a shut down in the container and safely shut down"
+           "    halt: trigger a shut down in the"
+           "container and safely shut down"
            "\n"
-           "    kill: stop all processes running inside the container \n"
+           "    kill: stop all processes running"
+           "inside the container \n"
            % (CYAN, NORMAL))
 
 
@@ -233,7 +240,8 @@ def unfreeze():
                    % (RED, NORMAL))
     else:
         print ("   %sERROR:%s The container state is %s,\n"
-               "   it needs to be in the 'FROZEN' state in order to be unfrozen."
+               "   it needs to be in the 'FROZEN' state in"
+               "order to be unfrozen."
                 % (RED, NORMAL, lxc.Container(containername).state))
 
 
@@ -243,13 +251,14 @@ def toggleautostart():
     confirm_container_existance()
     if os.path.lexists(AUTOSTART_PATH + containername):
         print ("   %saction:%s disabling autostart for %s..."
-               % (GREEN, NORMAL, containername) )
+               % (GREEN, NORMAL, containername))
         os.unlink(AUTOSTART_PATH + containername)
     else:
         print ("   %saction:%s enabling autostart for %s..."
-               % (GREEN, NORMAL, containername) ) 
+               % (GREEN, NORMAL, containername))
         os.symlink(CONTAINER_PATH + containername,
-	           AUTOSTART_PATH + containername)
+                   AUTOSTART_PATH + containername)
+
 
 def create():
     """Create LXC Container"""
@@ -298,8 +307,8 @@ def clone():
     if cont.clone("newcont01"):
         print ("   %scloning operation succeeded")
     else:
-         print ("   %sERROR:%s Something went wrong, please check status"
-         % (RED, NORMAL))
+        print ("   %sERROR:%s Something went wrong, please check status"
+               % (RED, NORMAL))
 
 
 def archive():
@@ -350,9 +359,8 @@ def startall():
     requires_root()
     print (" * Starting all stopped containers:")
     for container in glob.glob(CONTAINER_PATH + '*/config'):
-        global containername 
-        containername = container.replace(CONTAINER_PATH,"").rstrip("/config")
-        cont = lxc.Container(containername)
+        global containername
+        containername = container.replace(CONTAINER_PATH, "").rstrip("/config")
         if lxc.Container(containername).state.swapcase() == "stopped":
             start()
 
@@ -362,9 +370,8 @@ def haltall():
     requires_root()
     print (" * Halting all containers:")
     for container in glob.glob(CONTAINER_PATH + '*/config'):
-        global containername 
-        containername = container.replace(CONTAINER_PATH,"").rstrip("/config")
-        cont = lxc.Container(containername)
+        global containername
+        containername = container.replace(CONTAINER_PATH, "").rstrip("/config")
         if lxc.Container(containername).state.swapcase() == "running":
             halt()
 
@@ -374,8 +381,7 @@ def killall():
     print (" * Killing all running containers:")
     for container in glob.glob(CONTAINER_PATH + '*/config'):
         global containername
-        containername = container.replace(CONTAINER_PATH,"").rstrip("/config")
-        cont = lxc.Container(containername)
+        containername = container.replace(CONTAINER_PATH, "").rstrip("/config")
         if lxc.Container(containername).state.swapcase() == "running":
             kill()
 
@@ -385,22 +391,49 @@ def killall():
 def requires_root():
     """Tests whether the user is root. Required for many functions"""
     if not os.getuid() == 0:
-        print(_( "   %sERROR 403:%s This function requires root. \
-                 Further execution has been aborted." % (RED, NORMAL) ))
-        sys.exit(403) 
+        print(_("   %sERROR 403:%s This function requires root. \
+                Further execution has been aborted." % (RED, NORMAL)))
+        sys.exit(403)
 
 
 def confirm_container_existance():
     """Checks whether specified container exists before execution."""
     try:
         if not os.path.exists(CONTAINER_PATH + containername):
-            print (_( "   %sERROR 404:%s That container (%s) could not be found."
-                      % (RED, NORMAL, containername) ))
+            print (_("   %sERROR 404:%s That container (%s)"
+                     "could not be found."
+                      % (RED, NORMAL, containername)))
             sys.exit(404)
     except NameError:
-        print (_( "   %sERROR 400:%s You must specify a container."
-                  % (RED, NORMAL) ))
+        print (_("   %sERROR 400:%s You must specify a container."
+                  % (RED, NORMAL)))
         sys.exit(404)
+
+
+def gen_sshkeys():
+    """Generate SSH keys to access containers with"""
+    print (" * Generating private key...")
+    key = RSA.generate(4096, os.urandom)
+    print (key.exportKey())
+    print (" * Generating public key...")
+
+
+def update_sshkeys():
+    """Update SSH public keys in LXC guests"""
+    print (" * Updateing public ssh keys...")
+    print ("Sorry, this feature has not yet been implemented")
+
+
+def execute():
+    """Execute a command in a container via SSH"""
+    print (" * Executing '%s' in %s..." % ("command", containername))
+    print ("Sorry, this feature has not yet been implemented")
+
+
+def enter():
+    """Enter a container via SSH"""
+    print (" * Entering container %s..." % (containername))
+    print ("Sorry, this feature has not yet been implemented")
 
 
 # Argument parsing
@@ -498,6 +531,9 @@ sp_haltall.set_defaults(function=haltall)
 
 sp_killall = sp.add_parser('killall', help='Kill all started containers')
 sp_killall.set_defaults(function=killall)
+
+sp_gensshkeys = sp.add_parser('gensshkeys', help='Generates new SSH keypair')
+sp_gensshkeys.set_defaults(function=gen_sshkeys)
 
 args = parser.parse_args()
 

@@ -16,7 +16,7 @@ LLXC Roadmap.
  * [i] clone a container
  * [x] archive a container
  * [x] unarchive a container
- * [ ] generating of ssh keys
+ * [i] generation of ssh keys
  * [ ] updating of ssh keys in clients
  * [ ] setting up of ssh service in guests
  * [ ] entering guests via ssh
