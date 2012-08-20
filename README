@@ -2,14 +2,19 @@ LLXC is a script for working with LXC containers using python3-lxc.
 
 What currently works:
     * Starting containers
-    * Stopping containers
+    * Halting containers
+    * Killing containers
     * Listing containers
-    * Destroying containers (via lxc-destroy)
-    * Creating containers (via lxc-create)
+    * Destroying containers
+    * Creating containers
     * Freezing containers
     * Unfreezing containers
     * Archiving containers
     * Unarchiving containers
+    * Halting all containers
+    * Killing all containers
+    * Starting all containers
+    * Toggle auto start for containers 
 
 What doesn't work yet:
     * Detailed container status
