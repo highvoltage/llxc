@@ -3,7 +3,7 @@ LLXC Roadmap.
 Everything is subject to change, especially as things progress to
 future versions.
 
-0.1 - Current Release
+0.1 - Previous Release
  * [x] stop a container
  * [x] start a container
  * [x] halt (lxc shutdown) - SIGPWR to container
@@ -15,7 +15,7 @@ future versions.
  * [x] working status page, even if crude
  * [x] basic container listing
 
-0.2 - Current Developement Version
+0.2 - Current Release - 2012-08-25
  * [x] clone a container
  * [x] archive a container
  * [x] unarchive a container
@@ -28,9 +28,9 @@ future versions.
  * [x] stopall - stopall containers
  * [x] list archived containers
 
-0.3 - Future Release
+0.3 - Current Development Version
  * [ ] diagnostics of lxc system
- * [ ] lvm awareness
+ * [ ] lvm filesystem awareness
  * [ ] netstat for containers
  * [ ] printconfig - show config for container
  * [ ] logging
@@ -40,8 +40,11 @@ future versions.
  * [ ] all strings are translable
  * [ ] go through all TODO and FIXMEs and fix what's fixable
  * [ ] programmable bash completion
- * [ ] add init_pid to status
- * [ ] add conig_file_name to status
+ * [x] add init_pid to status
+ * [x] add conig_file_name to status
+ * [ ] fix memory display in status
+ * [ ] show swap usage in status
+
 
 0.4 - Future Release
  * [ ] Basic awareness of other hosts
@@ -50,7 +53,6 @@ future versions.
  * [ ] configuration profiles awareness for bcfg2
  * [ ] more hooks... everywhere
  * [ ] hidden containers
- * [ ] trash a container
  * [ ] untrash a container
  * [ ] wait on a container
  * [ ] man page

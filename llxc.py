@@ -112,7 +112,6 @@ def status():
     # TODO: Add disk usage depending on LVM or plain directory
     # TODO: Add cpuset.cpu - show how many cpus are used
     confirm_container_existance()
-    #cont = lxc.Container(containername)
 
     # gather some data
     state = lxc.Container(containername).state.swapcase()
@@ -121,7 +120,6 @@ def status():
     else:
         autostart = "disabled"
     lxcversion = os.popen("lxc-version | awk {'print $3'}").read()
-    #TODO: Add version to this line:
     lxchost = os.popen("lsb_release -d | awk '{print $2, $3}'").read()
     tasks = sum(1 for line in open(CGROUP_PATH + "cpuset/lxc/" +
                 containername + "/tasks", 'r'))
@@ -129,25 +127,30 @@ def status():
                       "/memory.swappiness", 'r').read()
     memusage = int(open(CGROUP_PATH + "memory/lxc/" + containername +
                    "/memory.memsw.usage_in_bytes", 'r').read()) / 1000 / 1000
+    init_pid = lxc.Container(containername).init_pid
+    config_file = lxc.Container(containername).config_file_name
     # FIXME: Add swap usage
     # swapusage = open(CGROUP_PATH + "memory/lxc/" + containername + "/..."
 
     print (CYAN + """\
     Status report for container:  """ + containername + NORMAL + """
-                         System:
+                         SYSTEM:
                     LXC Version:  %s\
                        LXC Host:  %s\
+             Configuration File:  %s
 
-                         Memory:
+                         MEMORY:
                    Memory Usage:  %s MiB
+                     Swap Usage:  Not implemented
                      Swappiness:  %s\
 
-                          State:
+                          STATE:
+                       Init PID:  %s
          Autostart on host boot:  %s
                   Current state:  %s
               Running processes:  %s
-    """ % (lxcversion, lxchost, memusage,
-           swappiness, autostart, state, tasks))
+    """ % (lxcversion, lxchost, config_file, memusage,
+           swappiness, init_pid, autostart, state, tasks))
     print (CYAN + "    Tip: " + NORMAL +
            "'llxc status' is experimental and subject to behavioural change")
 
@@ -480,6 +483,34 @@ def enter():
            % (GREEN, containername, NORMAL))
 
 
+def diagnostics():
+    """Prints any information we can provide on the LXC Host system"""
+    # TODO: make the capability to use an external config filelike
+    #       lxc-checkconfig
+    print ("LXC Diagnostics")
+    print ("  NAMESPACES:")
+    print ("    Namespaces: %s")
+    print ("    Utsname namespace: %s")
+    print ("    Ipc namespace: %s")
+    print ("    Pid namespace: %s")
+    print ("    User namespace: %s")
+    print ("    Network namespace: %s")
+    print ("    Multiple /dev/pts instances: %s")
+    print ("  CONTROL GROUPS:")
+    print ("    Cgroup: %s")
+    print ("    Cgroup clone_children flag: %s")
+    print ("    Cgroup device: %s")
+    print ("    Cgroup sched: %s")
+    print ("    Cgroup cpu account: %s")
+    print ("    Cgroup memory controller: %s")
+    print ("    Cgroup cpuset: %s")
+    print ("  MISC:")
+    print ("    Veth pair device: %s")
+    print ("    Macvlan: %s")
+    print ("    Vlan: %s")
+    print ("    File capabilities: %s")
+
+
 # Argument parsing
 
 parser = argparse.ArgumentParser(
@@ -524,7 +555,6 @@ sp_kill = sp.add_parser('kill', help='Kills a container')
 sp_kill.add_argument('containername', type=str,
                       help='Name of the container to be killed')
 sp_kill.set_defaults(function=kill)
-
 
 sp_halt = sp.add_parser('halt', help='Shuts down a container')
 sp_halt.add_argument('containername', type=str,
@@ -597,6 +627,10 @@ sp_enter = sp.add_parser('enter', help='Log in to a container via SSH')
 sp_enter.add_argument('containername', type=str,
                         help="Name of the container to enter")
 sp_enter.set_defaults(function=enter)
+
+sp_diagnostics = sp.add_parser('diagnostics',
+                               help='Print available diagnostics information')
+sp_diagnostics.set_defaults(function=diagnostics)
 
 args = parser.parse_args()
 
