@@ -1,6 +1,7 @@
 LLXC Roadmap.
 
-Subject to change, especially as things progress to further versions.
+Everything is subject to change, especially as things progress to
+future versions.
 
 0.1 - Current Release
  * [x] stop a container
@@ -15,14 +16,13 @@ Subject to change, especially as things progress to further versions.
  * [x] basic container listing
 
 0.2 - Current Developement Version
- * [i] clone a container
+ * [x] clone a container
  * [x] archive a container
  * [x] unarchive a container
  * [x] generation of ssh keys
  * [x] updating of ssh keys in clients
- * [ ] setting up of ssh service in guests
- * [ ] entering guests via ssh
- * [ ] executing commands via ssh
+ * [x] entering guests via ssh
+ * [x] executing commands via ssh
  * [x] startall - to start all containers
  * [x] haltall - halt all containers
  * [x] stopall - stopall containers
@@ -63,6 +63,7 @@ Subject to change, especially as things progress to further versions.
  * [ ] set capabilities
  * [ ] back up an entire llxc system
  * [ ] restore an entire llxc system
+ * [ ] setting up of ssh service in guests
 
 0.9 - Future Release
  * [ ] Add all TODO and FIXME lines here to be removed

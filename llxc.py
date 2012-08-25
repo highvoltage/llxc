@@ -34,6 +34,7 @@ import tarfile
 import shutil
 
 from gettext import gettext as _
+from subprocess import call
 
 # Set up translations via gettext
 gettext.textdomain("llxc")
@@ -74,7 +75,7 @@ def listing():
         cont = lxc.Container(containername)
         try:
             ipaddress = cont.get_ips(protocol="ipv4",
-                                     interface="eth0", timeout=0.1)
+                                     interface="eth0", timeout=0.5)
             ipaddress = ipaddress[0]
         except TypeError:
             ipaddress = "Unavailable"
@@ -295,14 +296,16 @@ def destroy():
 
 def clone():
     """Clone LXC container"""
+    #TODO: Confirm source container exists, destination one doesn't
     requires_root()
-    confirm_container_existance()
-    cont = lxc.Container(containername)
-    print (" * Cloning %s in to %s..." % (containername, "new container"))
-    if cont.clone("newcont01"):
-        print ("   %scloning operation succeeded")
+    cont = lxc.Container(args.newcontainername)
+    print (" * Cloning %s in to %s..." % (containername, args.newcontainername))
+    if cont.clone(containername):
+        print ("   %scloning operation succeeded%s"
+               % (GREEN, NORMAL))
     else:
-        print ("   %sERROR:%s Something went wrong, please check status"
+        print ("   %serror:%s Something went wrong, "
+               "please check list and status"
                % (RED, NORMAL))
 
 
@@ -451,15 +454,30 @@ def update_sshkeys():
             fout.close()
 
 
-def exec():
+def execute():
     """Execute a command in a container via SSH"""
-    print (" * Executing '%s' in %s..." % ("command", containername))
-    os.popen("ssh %s ls -a /root" % (containername))
+    #FIXME: There should be a way to exec commands without having
+    #       to enclose it in ticks
+    print (" * Executing '%s' in %s..." % (args.command, containername))
+    return_code = call("ssh %s %s"
+                       % (containername, args.command), shell=True)
+    if not return_code == 0:
+        print ("    %swarning:%s last exit code in container: %s"
+               % (YELLOW, NORMAL, return_code))
+    print ("    %sexecution completed for container: %s...%s"
+           % (GREEN, containername, NORMAL))
 
 
 def enter():
     """Enter a container via SSH"""
     print (" * Entering container %s..." % (containername))
+    #print (os.popen("ssh %s" % (containername)).read())
+    return_code = call("ssh %s" % (containername), shell=True)
+    if not return_code == 0:
+        print ("    %swarning:%s last exit code in container: %s"
+               % (YELLOW, NORMAL, return_code))
+    print ("    %sexiting container: %s...%s"
+           % (GREEN, containername, NORMAL))
 
 
 # Argument parsing
@@ -567,6 +585,18 @@ sp_listarchive.set_defaults(function=listarchive)
 sp_updatesshkeys = sp.add_parser('updatesshkeys', help='Update SSH public'
                                  'keys in containers')
 sp_updatesshkeys.set_defaults(function=update_sshkeys)
+
+sp_exec = sp.add_parser('exec', help='Execute a command in container via SSH')
+sp_exec.add_argument('containername', type=str,
+                        help="Name of the container to execute command in")
+sp_exec.add_argument('command', type=str, nargs='?',
+                        help="Command to be executed")
+sp_exec.set_defaults(function=execute)
+
+sp_enter = sp.add_parser('enter', help='Log in to a container via SSH')
+sp_enter.add_argument('containername', type=str,
+                        help="Name of the container to enter")
+sp_enter.set_defaults(function=enter)
 
 args = parser.parse_args()
 
