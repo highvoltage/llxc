@@ -34,7 +34,6 @@ import tarfile
 import shutil
 
 from gettext import gettext as _
-from Crypto.PublicKey import RSA
 
 # Set up translations via gettext
 gettext.textdomain("llxc")
@@ -47,6 +46,7 @@ CONTAINER_PATH = "/var/lib/lxc/"
 AUTOSTART_PATH = "/etc/lxc/auto/"
 CGROUP_PATH = "/sys/fs/cgroup/"
 ARCHIVE_PATH = CONTAINER_PATH + ".archive/"
+LLXCHOME_PATH = "/var/lib/llxc/"
 
 # Set colours, unless llxcmono is set
 try:
@@ -54,6 +54,7 @@ try:
         GRAY = RED = GREEN = YELLOW = BLUE = \
         PURPLE = CYAN = NORMAL = ""
 except KeyError:
+    # Light Colour Scheme
     GRAY = "\033[1;30m"
     RED = "\033[1;31m"
     GREEN = "\033[1;32m"
@@ -268,6 +269,7 @@ def create():
         print ("   %ERROR:% Something went wrong, please check status"
                % (RED, NORMAL))
     toggleautostart()
+    update_sshkeys()
     start()
 
 
@@ -280,7 +282,7 @@ def destroy():
                " destroying in 10 seconds..."
                % (YELLOW, NORMAL))
         time.sleep(10)
-        stop()
+        kill()
     print (" * Destroying container " + containername + "...")
     cont = lxc.Container(containername)
     if cont.destroy():
@@ -406,28 +408,58 @@ def confirm_container_existance():
 
 def gen_sshkeys():
     """Generate SSH keys to access containers with"""
-    print (" * Generating private key...")
-    key = RSA.generate(4096, os.urandom)
-    print (key.exportKey())
-    print (" * Generating public key...")
+    # m2crypto hasn't been ported to python3 yet
+    # so for now we do it via shell
+    # TODO: check if keypair already exists
+    print (" * Generating ssh keypair...")
+    directory = os.path.dirname("/var/lib/llxc/ssh/")
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    if os.popen("ssh-keygen -f %sssh/container_rsa -N ''"
+                % (LLXCHOME_PATH)):
+        print ("   %skeypair generated%s" % (GREEN, NORMAL))
+    else:
+        print ("   %skeypair generation failed%s" % (RED,NORMAL))
 
 
 def update_sshkeys():
-    """Update SSH public keys in LXC guests"""
-    print (" * Updateing public ssh keys...")
-    print ("Sorry, this feature has not yet been implemented")
+    """Update ssh keys in LXC containers"""
+    # TODO: update keys for aware hosts
+    print (" * Updating keys...")
+    # read public key file:
+    pkey = open(LLXCHOME_PATH + "ssh/container_rsa.pub", "r")
+    pkeydata = pkey.read()
+    pkey.close()
+    for container in glob.glob(CONTAINER_PATH + '*/config'):
+        containerpath = container.rstrip("/config")
+        if not os.path.exists(containerpath + "/rootfs/root/.ssh"):
+            os.makedirs(containerpath + "/rootfs/root/.ssh")
+        # append public key to authorized_keys in container
+        keypresent=False
+        try:
+            for publickey in open(containerpath +
+                                  "/rootfs/root/.ssh/authorized_keys"):
+                if pkeydata in publickey:
+                    keypresent=True
+        except IOError:
+            pass
+        if not keypresent:
+            print ("   %sinstalling key in container: %s%s"
+                   % (GREEN, container.replace(CONTAINER_PATH, "").rstrip("/config"), NORMAL))
+            fout = open(containerpath + "/rootfs/root/.ssh/authorized_keys", "a+")
+            fout.write(pkeydata)
+            fout.close()
 
 
-def execute():
+def exec():
     """Execute a command in a container via SSH"""
     print (" * Executing '%s' in %s..." % ("command", containername))
-    print ("Sorry, this feature has not yet been implemented")
+    os.popen("ssh %s ls -a /root" % (containername))
 
 
 def enter():
     """Enter a container via SSH"""
     print (" * Entering container %s..." % (containername))
-    print ("Sorry, this feature has not yet been implemented")
 
 
 # Argument parsing
@@ -531,6 +563,10 @@ sp_gensshkeys.set_defaults(function=gen_sshkeys)
 
 sp_listarchive = sp.add_parser('listarchive', help='List archived containers')
 sp_listarchive.set_defaults(function=listarchive)
+
+sp_updatesshkeys = sp.add_parser('updatesshkeys', help='Update SSH public'
+                                 'keys in containers')
+sp_updatesshkeys.set_defaults(function=update_sshkeys)
 
 args = parser.parse_args()
 

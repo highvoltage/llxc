@@ -18,8 +18,8 @@ Subject to change, especially as things progress to further versions.
  * [i] clone a container
  * [x] archive a container
  * [x] unarchive a container
- * [i] generation of ssh keys
- * [ ] updating of ssh keys in clients
+ * [x] generation of ssh keys
+ * [x] updating of ssh keys in clients
  * [ ] setting up of ssh service in guests
  * [ ] entering guests via ssh
  * [ ] executing commands via ssh
@@ -61,6 +61,15 @@ Subject to change, especially as things progress to further versions.
  * [ ] redisign list to work with configurable lists and columns
  * [ ] ephemeral containers
  * [ ] set capabilities
+ * [ ] back up an entire llxc system
+ * [ ] restore an entire llxc system
+
+0.9 - Future Release
+ * [ ] Add all TODO and FIXME lines here to be removed
+ * [ ] man page
+
+1.0 - Future feature complete release
+ * [ ]
 
 1.1 - Future Release
  * [ ] ncurses interface
