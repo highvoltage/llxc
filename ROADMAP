@@ -26,9 +26,11 @@ Subject to change, especially as things progress to further versions.
  * [x] startall - to start all containers
  * [x] haltall - halt all containers
  * [x] stopall - stopall containers
+ * [x] list archived containers
 
 0.3 - Future Release
  * [ ] diagnostics of lxc system
+ * [ ] lvm awareness
  * [ ] netstat for containers
  * [ ] printconfig - show config for container
  * [ ] logging
@@ -37,11 +39,8 @@ Subject to change, especially as things progress to further versions.
  * [ ] runinall - exec a command in all containers
  * [ ] all strings are translable
  * [ ] go through all TODO and FIXMEs and fix what's fixable
- * [ ] trash a container
- * [ ] untrash a container
- * [ ] empty trash
- * [ ] list trash
- * [ ] list archived containers
+ * [ ] man page
+ * [ ] programmable bash completion
 
 0.4 - Future Release
  * [ ] Basic awareness of other hosts
@@ -50,6 +49,18 @@ Subject to change, especially as things progress to further versions.
  * [ ] configuration profiles awareness for bcfg2
  * [ ] more hooks... everywhere
  * [ ] hidden containers
+ * [ ] trash a container
+ * [ ] untrash a container
+ * [ ] empty trash
+ * [ ] list trash
+ * [ ] wait on a container
 
 0.5 - Future Release
  * [ ] Initial web interface based on rlxc interface
+ * [ ] btrfs features integration (ie, scrub)
+ * [ ] redisign list to work with configurable lists and columns
+ * [ ] ephemeral containers
+ * [ ] set capabilities
+
+1.1 - Future Release
+ * [ ] ncurses interface

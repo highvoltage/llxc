@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""LLXC Linux Containers"""
+"""LLXC Wrapper for LXC Container Managemenr"""
 
 # Copyright (c) 2012 Jonathan Carter
 # This file is released under the MIT/expat license.
@@ -46,6 +46,7 @@ gettext.textdomain("llxc")
 CONTAINER_PATH = "/var/lib/lxc/"
 AUTOSTART_PATH = "/etc/lxc/auto/"
 CGROUP_PATH = "/sys/fs/cgroup/"
+ARCHIVE_PATH = CONTAINER_PATH + ".archive/"
 
 # Set colours, unless llxcmono is set
 try:
@@ -110,6 +111,23 @@ def listing():
             tasks = "00"
         print ("   %s \t %s \t   %s \t%s" % (containername, tasks,
                cont.state.swapcase(), ipaddress))
+
+
+def listarchive():
+    """Print a list of archived containers"""
+    print ("    %sNAME \tSIZE \t     DATE%s" % (CYAN, NORMAL))
+    try:
+        for container in glob.glob(ARCHIVE_PATH + '*tar.gz'):
+            containername = container.replace(ARCHIVE_PATH, "").rstrip(".tar.gz")
+            containersize = os.path.getsize(container)
+            containerdate = time.ctime(os.path.getctime(container))
+            # TODO: Make these dates look less Americ^Wrandom
+            print ("    %s \t%.0f MiB\t     %s"
+                   % (containername, containersize / 1000 / 1000,
+                      containerdate))
+    except IOError:
+        print ("    Error: Confirm that the archive directory exists"
+               "and that it is accessable")
 
 
 def status():
@@ -313,6 +331,7 @@ def clone():
 
 def archive():
     """Archive LXC container by tarring it up and removing it."""
+    #TODO: check thatthat archivepath exists and create it if not
     requires_root()
     confirm_container_existance()
     halt()
@@ -320,7 +339,7 @@ def archive():
     #TODO: A progress indicator would be nice.
     previous_path = os.getcwd()
     os.chdir(CONTAINER_PATH)
-    tar = tarfile.open(containername + ".tar.gz", "w:gz")
+    tar = tarfile.open(ARCHIVE_PATH + containername + ".tar.gz", "w:gz")
     tar.add(containername)
     tar.close
     os.chdir(previous_path)
@@ -345,7 +364,7 @@ def unarchive():
     print (" * Unarchiving container: %s..." % (containername))
     previous_path = os.getcwd()
     os.chdir(CONTAINER_PATH)
-    tar = tarfile.open(CONTAINER_PATH + containername + ".tar.gz", "r:gz")
+    tar = tarfile.open(ARCHIVE_PATH + containername + ".tar.gz", "r:gz")
     tar.extractall()
     os.chdir(previous_path)
     print ("   %stip:%s archive file not removed, container not started,\n"
@@ -534,6 +553,9 @@ sp_killall.set_defaults(function=killall)
 
 sp_gensshkeys = sp.add_parser('gensshkeys', help='Generates new SSH keypair')
 sp_gensshkeys.set_defaults(function=gen_sshkeys)
+
+sp_listarchive = sp.add_parser('listarchive', help='List archived containers')
+sp_listarchive.set_defaults(function=listarchive)
 
 args = parser.parse_args()
 
