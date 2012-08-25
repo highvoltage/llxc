@@ -39,8 +39,9 @@ future versions.
  * [ ] runinall - exec a command in all containers
  * [ ] all strings are translable
  * [ ] go through all TODO and FIXMEs and fix what's fixable
- * [ ] man page
  * [ ] programmable bash completion
+ * [ ] add init_pid to status
+ * [ ] add conig_file_name to status
 
 0.4 - Future Release
  * [ ] Basic awareness of other hosts
@@ -52,6 +53,7 @@ future versions.
  * [ ] trash a container
  * [ ] untrash a container
  * [ ] wait on a container
+ * [ ] man page
 
 0.5 - Future Release
  * [ ] Initial web interface based on rlxc interface
@@ -65,7 +67,6 @@ future versions.
 
 0.9 - Future Release
  * [ ] Add all TODO and FIXME lines here to be removed
- * [ ] man page
 
 1.0 - Future feature complete release
  * [ ]
