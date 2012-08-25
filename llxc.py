@@ -64,31 +64,6 @@ except KeyError:
     NORMAL = "\033[0m"
 
 
-def examples():
-    """Prints LLXC Usage"""
-    print ("%sLLXC Linux Containers (llxc) \n\nExamples:%s"
-            % (CYAN, NORMAL))
-    print ("""    * llxc enter containername
-    * llxc exec containername
-    * llxc status containername
-    * llxc start containername
-    * llxc halt containername
-    * llxc stop containername
-    * llxc freeze containername
-    * llxc unfreeze containername
-    * llxc create containername
-    * llxc destroy containername
-    * llxc toggleautostart containername
-    * llxc -h
-    """)
-    print ("%sTips:%s" % (CYAN, NORMAL))
-    print ("""    * Set environment variable llxcmono=1 to disable colours
-    * Type "llxc -h" for full command line usage
-    * llxc gensshkeys is usually run when the llxc package is installed
-    * Tell your friends to use LXC!
-    """)
-
-
 def listing():
     """Provides a list of LXC Containers"""
     print ("%s   NAME \tTASKS \t   STATUS \tIP_ADDR_%s%s"
