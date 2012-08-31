@@ -36,7 +36,7 @@ import warnings
 
 # For now we need to filter the warning that python3-lxc produces
 with warnings.catch_warnings():
-    warnings.filterwarnings("ignore",category=Warning)
+    warnings.filterwarnings("ignore", category=Warning)
     import lxc
 
 from gettext import gettext as _
@@ -98,7 +98,8 @@ def listarchive():
     print ("    %sNAME \tSIZE \t     DATE%s" % (CYAN, NORMAL))
     try:
         for container in glob.glob(ARCHIVE_PATH + '*tar.gz'):
-            containername = container.replace(ARCHIVE_PATH, "").rstrip(".tar.gz")
+            containername = container.replace(ARCHIVE_PATH,
+                                              "").rstrip(".tar.gz")
             containersize = os.path.getsize(container)
             containerdate = time.ctime(os.path.getctime(container))
             # TODO: Make these dates look less Americ^Wrandom
@@ -135,16 +136,18 @@ def status():
     config_file = lxc.Container(containername).config_file_name
     # FIXME: Add swap usage
     # swapusage = open(CGROUP_PATH + "memory/lxc/" + containername + "/..."
+    lxcguest = "Not implemented"
 
     print (CYAN + """\
     Status report for container:  """ + containername + NORMAL + """
                          SYSTEM:
                     LXC Version:  %s\
                        LXC Host:  %s\
+                      LXC Guest:  %s
              Configuration File:  %s
 
                          MEMORY:
-                   Memory Usage:  %s MiB
+                   Memory Usage:  %.1f MiB
                      Swap Usage:  Not implemented
                      Swappiness:  %s\
 
@@ -153,7 +156,7 @@ def status():
          Autostart on host boot:  %s
                   Current state:  %s
               Running processes:  %s
-    """ % (lxcversion, lxchost, config_file, memusage,
+    """ % (lxcversion, lxchost, lxcguest, config_file, memusage,
            swappiness, init_pid, autostart, state, tasks))
     print (CYAN + "    Tip: " + NORMAL +
            "'llxc status' is experimental and subject to behavioural change")
@@ -306,7 +309,8 @@ def clone():
     #TODO: Confirm source container exists, destination one doesn't
     requires_root()
     cont = lxc.Container(args.newcontainername)
-    print (" * Cloning %s in to %s..." % (containername, args.newcontainername))
+    print (" * Cloning %s in to %s..."
+           % (containername, args.newcontainername))
     if cont.clone(containername):
         print ("   %scloning operation succeeded%s"
                % (GREEN, NORMAL))
@@ -371,6 +375,20 @@ def startall():
             start()
 
 
+def runinall():
+    """Runs a command in all containers"""
+    requires_root()
+    for container in glob.glob(CONTAINER_PATH + '*/config'):
+        global containername
+        containername = container.replace(CONTAINER_PATH, "").rstrip("/config")
+        if lxc.Container(containername).state.swapcase() == "running":
+            print (" * Executing %s in %s..." % (args.command, containername))
+            #TODO: run commands her
+        else:
+            print (" * %sWarning:%s Container %s not running, skipped..."
+                   % (YELLOW, NORMAL, containername))
+
+
 def haltall():
     """Halt all LXC containers"""
     requires_root()
@@ -429,7 +447,7 @@ def gen_sshkeys():
                 % (LLXCHOME_PATH)):
         print ("   %skeypair generated%s" % (GREEN, NORMAL))
     else:
-        print ("   %skeypair generation failed%s" % (RED,NORMAL))
+        print ("   %skeypair generation failed%s" % (RED, NORMAL))
 
 
 def update_sshkeys():
@@ -445,18 +463,20 @@ def update_sshkeys():
         if not os.path.exists(containerpath + "/rootfs/root/.ssh"):
             os.makedirs(containerpath + "/rootfs/root/.ssh")
         # append public key to authorized_keys in container
-        keypresent=False
+        keypresent = False
         try:
             for publickey in open(containerpath +
                                   "/rootfs/root/.ssh/authorized_keys"):
                 if pkeydata in publickey:
-                    keypresent=True
+                    keypresent = True
         except IOError:
             pass
         if not keypresent:
             print ("   %sinstalling key in container: %s%s"
-                   % (GREEN, container.replace(CONTAINER_PATH, "").rstrip("/config"), NORMAL))
-            fout = open(containerpath + "/rootfs/root/.ssh/authorized_keys", "a+")
+                   % (GREEN, container.replace
+                      (CONTAINER_PATH, "").rstrip("/config"), NORMAL))
+            fout = open(containerpath +
+                        "/rootfs/root/.ssh/authorized_keys", "a+")
             fout.write(pkeydata)
             fout.close()
 
@@ -513,6 +533,16 @@ def diagnostics():
     print ("    Macvlan: %s")
     print ("    Vlan: %s")
     print ("    File capabilities: %s")
+
+
+def printconfig():
+    """Prints LXC Configuration"""
+    print ("Not Implemented")
+
+
+def console():
+    """Attaches to an LXC console"""
+    print ("Not implemented")
 
 
 # Argument parsing
@@ -635,6 +665,20 @@ sp_enter.set_defaults(function=enter)
 sp_diagnostics = sp.add_parser('diagnostics',
                                help='Print available diagnostics information')
 sp_diagnostics.set_defaults(function=diagnostics)
+
+sp_runinall = sp.add_parser('runinall',
+                            help='Run command in all containers')
+sp_runinall.set_defaults(function=runinall)
+sp_runinall.add_argument('command', type=str, nargs='?',
+                        help="Command to be executed")
+
+sp_printconfig = sp.add_parser('printconfig',
+                               help='Print LXC container configuration')
+sp_printconfig.set_defaults(function=printconfig)
+
+sp_console = sp.add_parser('console',
+                           help='Enter LXC Console')
+sp_console.set_defaults(function=console)
 
 args = parser.parse_args()
 

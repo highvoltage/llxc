@@ -31,15 +31,11 @@ future versions.
 0.3 - Current Development Version
  * [i] diagnostics of lxc system
  * [ ] lvm filesystem awareness
- * [ ] netstat for containers
  * [ ] printconfig - show config for container
  * [ ] logging
- * [ ] set config key
- * [ ] clear config key
- * [ ] runinall - exec a command in all containers
+ * [i] runinall - exec a command in all containers
  * [ ] all strings are translable
  * [ ] go through all TODO and FIXMEs and fix what's fixable
- * [ ] programmable bash completion
  * [x] add init_pid to status
  * [x] add conig_file_name to status
  * [ ] fix memory display in status
@@ -56,6 +52,9 @@ future versions.
  * [ ] untrash a container
  * [ ] wait on a container
  * [ ] man page
+ * [ ] set config key
+ * [ ] clear config key
+
 
 0.5 - Future Release
  * [ ] Initial web interface based on rlxc interface
@@ -66,6 +65,7 @@ future versions.
  * [ ] back up an entire llxc system
  * [ ] restore an entire llxc system
  * [ ] setting up of ssh service in guests
+ * [ ] programmable bash completion
 
 0.9 - Future Release
  * [ ] Add all TODO and FIXME lines here to be removed
