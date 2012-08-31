@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """LLXC Wrapper for LXC Container Managemenr"""
 
 # Copyright (c) 2012 Jonathan Carter
@@ -542,7 +542,13 @@ def printconfig():
 
 def console():
     """Attaches to an LXC console"""
-    print ("Not implemented")
+    confirm_container_existance()
+    print (" * Entering LXC Console: %s" % (containername))
+    cont = lxc.Container(containername)
+    if cont.console():
+        print ("Detached from LXC console: %s" % (containername))
+    else:
+        print ("   %serror:%s please check status" % (RED, NORMAL))
 
 
 # Argument parsing
@@ -679,6 +685,8 @@ sp_printconfig.set_defaults(function=printconfig)
 sp_console = sp.add_parser('console',
                            help='Enter LXC Console')
 sp_console.set_defaults(function=console)
+sp_console.add_argument('containername', type=str,
+                        help="Name of the container to attach console")
 
 args = parser.parse_args()
 
