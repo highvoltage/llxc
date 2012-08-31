@@ -29,7 +29,7 @@ future versions.
  * [x] list archived containers
 
 0.3 - Current Development Version
- * [ ] diagnostics of lxc system
+ * [i] diagnostics of lxc system
  * [ ] lvm filesystem awareness
  * [ ] netstat for containers
  * [ ] printconfig - show config for container

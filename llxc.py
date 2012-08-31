@@ -23,24 +23,27 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# The little perfectionist in me likes to keep this alphabetical.
 import argparse
-import os
-import sys
-import lxc
 import glob
 import gettext
+import os
+import sys
 import time
 import tarfile
 import shutil
+import warnings
+
+# For now we need to filter the warning that python3-lxc produces
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore",category=Warning)
+    import lxc
 
 from gettext import gettext as _
 from subprocess import call
 
 # Set up translations via gettext
 gettext.textdomain("llxc")
-
-#print("You chose to list the " + args.ipstack +
-#      " address on " + args.interface)
 
 # Set some variables
 CONTAINER_PATH = "/var/lib/lxc/"
@@ -111,6 +114,7 @@ def status():
     """Prints a status report for specified container"""
     # TODO: Add disk usage depending on LVM or plain directory
     # TODO: Add cpuset.cpu - show how many cpus are used
+    #test.get_config_item("lxc.rootfs")
     confirm_container_existance()
 
     # gather some data
