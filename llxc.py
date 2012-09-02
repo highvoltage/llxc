@@ -51,6 +51,8 @@ AUTOSTART_PATH = "/etc/lxc/auto/"
 CGROUP_PATH = "/sys/fs/cgroup/"
 ARCHIVE_PATH = CONTAINER_PATH + ".archive/"
 LLXCHOME_PATH = "/var/lib/llxc/"
+# 5000000000 = 5 GiB
+MIN_REQ_DISK_SPACE = 5000000000
 
 # Set colours, unless llxcmono is set
 try:
@@ -102,7 +104,6 @@ def listarchive():
                                               "").rstrip(".tar.gz")
             containersize = os.path.getsize(container)
             containerdate = time.ctime(os.path.getctime(container))
-            # TODO: Make these dates look less Americ^Wrandom
             print ("    %s \t%.0f MiB\t     %s"
                    % (containername, containersize / 1000 / 1000,
                       containerdate))
@@ -114,7 +115,7 @@ def listarchive():
 def status():
     """Prints a status report for specified container"""
     # TODO: Add disk usage depending on LVM or plain directory
-    confirm_container_existance()
+    requires_container_existance()
 
     cont = lxc.Container(containername)
 
@@ -233,8 +234,8 @@ def status():
 def kill():
     """Force stop LXC container"""
     requires_root()
-    confirm_container_existance()
     print (" * Killing %s..." % (containername))
+    requires_container_existance()
     cont = lxc.Container(containername)
     if cont.stop():
         print ("   %s%s sucessfully killed%s"
@@ -259,8 +260,8 @@ def start():
     """Start LXC Container"""
     # TODO: confirm that networking (ie, lxcbr) is available before starting
     requires_root()
-    confirm_container_existance()
     print (" * Starting %s..." % (containername))
+    requires_container_existance()
     cont = lxc.Container(containername)
     if cont.start():
         print ("   %s%s sucessfully started%s" 
@@ -270,8 +271,8 @@ def start():
 def halt():
     "Shut Down LXC Container"""
     requires_root()
-    confirm_container_existance()
     print (" * Shutting down %s..." % (containername))
+    requires_container_existance()
     cont = lxc.Container(containername)
     if cont.shutdown():
         print ("   %s%s successfully shut down%s"
@@ -281,7 +282,7 @@ def halt():
 def freeze():
     """Freeze LXC Container"""
     requires_root()
-    confirm_container_existance()
+    requires_container_existance()
     if lxc.Container(containername).state == "RUNNING":
         print (" * Freezing container: %s..." % (containername))
         cont = lxc.Container(containername)
@@ -301,7 +302,7 @@ def freeze():
 def unfreeze():
     """Unfreeze LXC Container"""
     requires_root()
-    confirm_container_existance()
+    requires_container_existance()
     if lxc.Container(containername).state == "FROZEN":
         print (" * Unfreezing container: %s..." % (containername))
         cont = lxc.Container(containername)
@@ -321,7 +322,7 @@ def unfreeze():
 def toggleautostart():
     """Toggle autostart of LXC Container"""
     requires_root()
-    confirm_container_existance()
+    requires_container_existance()
     if os.path.lexists(AUTOSTART_PATH + containername):
         print ("   %saction:%s disabling autostart for %s..."
                % (GREEN, NORMAL, containername))
@@ -336,10 +337,10 @@ def toggleautostart():
 def create():
     """Create LXC Container"""
     requires_root()
-    # TODO: check that container does not exist
-    # TODO: check that we have suficient disk space on LXC partition first
     # TODO: warn at least if we're very low on memory or using a lot of swap
     print (" * Creating container: %s..." % (containername))
+    requires_container_nonexistance()
+    requires_free_disk_space()
     cont = lxc.Container(containername)
     if cont.create('ubuntu'):
         print ("   %scontainer %s successfully created%s"
@@ -355,7 +356,7 @@ def create():
 def destroy():
     """Destroy LXC Container"""
     requires_root()
-    confirm_container_existance()
+    requires_container_existance()
     if lxc.Container(containername).state == "RUNNING":
         print (" * %sWARNING:%s Container is running, stopping before"
                " destroying in 10 seconds..."
@@ -392,7 +393,7 @@ def archive():
     """Archive LXC container by tarring it up and removing it."""
     #TODO: check thatthat archivepath exists and create it if not
     requires_root()
-    confirm_container_existance()
+    requires_container_existance()
     halt()
     print (" * Archiving container: %s..." % (containername))
     #TODO: A progress indicator would be nice.
@@ -589,7 +590,7 @@ def printconfig():
 
 def console():
     """Attaches to an LXC console"""
-    confirm_container_existance()
+    requires_container_existance()
     print (" * Entering LXC Console: %s" % (containername))
     cont = lxc.Container(containername)
     if cont.console():
@@ -608,19 +609,50 @@ def requires_root():
         sys.exit(403)
 
 
-def confirm_container_existance():
+def requires_container_nonexistance():
+    """Prints an error message if a container exists and exits"""
+    if os.path.exists(CONTAINER_PATH + containername):
+        print(_("   %serror:%s That container already exists."
+                % (RED, NORMAL)))
+        sys.exit(1)
+
+
+def requires_network_bridge():
+    """Prints an error message if container's network bridge is unavailable"""
+    print ("Not implemented")
+
+
+def requires_container_existance():
     """Checks whether specified container exists before execution."""
     try:
         if not os.path.exists(CONTAINER_PATH + containername):
-            print (_("   %sERROR 404:%s That container (%s)"
+            print (_("   %serror 404:%s That container (%s) "
                      "could not be found."
                       % (RED, NORMAL, containername)))
             sys.exit(404)
     except NameError:
-        print (_("   %sERROR 400:%s You must specify a container."
+        print (_("   %serror 400:%s You must specify a container."
                   % (RED, NORMAL)))
-        sys.exit(404)
+        sys.exit(400)
 
+
+def requires_free_disk_space():
+    """Checks whether we have anough free disk space on the LXC partition"""
+    """before proceding."""
+    # config is in: MIN_REQ_DISK_SPACE 
+    stat = os.statvfs(CONTAINER_PATH)
+    free_space = stat.f_bsize * stat.f_bavail / 1000 / 1000
+    total_space = stat.f_blocks * stat.f_frsize / 1000 / 1000
+    used_space = (stat.f_blocks - stat.f_bfree) * stat.f_frsize
+    if free_space <= MIN_REQ_DISK_SPACE:
+        print ("   %serror:%s Insuficcient available disk space: %.2f MiB"
+               % (RED, NORMAL, free_space))
+        sys.exit(1)
+
+
+def requires_free_memory():
+    """Checkss memory status and warns if memory usage is high"""
+    print ("Not Implemented")
 
 # Argument parsing
 
