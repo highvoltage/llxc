@@ -114,8 +114,6 @@ def listarchive():
 def status():
     """Prints a status report for specified container"""
     # TODO: Add disk usage depending on LVM or plain directory
-    # TODO: Add cpuset.cpu - show how many cpus are used
-    #test.get_config_item("lxc.rootfs")
     confirm_container_existance()
 
     cont = lxc.Container(containername)
@@ -137,6 +135,9 @@ def status():
     init_pid = lxc.Container(containername).init_pid
     config_file = lxc.Container(containername).config_file_name
 
+    cpu_set = open(CGROUP_PATH + "cpuset/lxc/" +
+                   containername + "/cpuset.cpus", 'r').read()
+
     # TODO:
     # swapusage = open(CGROUP_PATH + "memory/lxc/" + containername + "/..."
     lxcguest = "Not implemented"
@@ -151,9 +152,20 @@ def status():
         macaddress = cont.get_config_item('lxc.network.hwaddr')
     else:
         macaddress = "unknown"
-    #TODO: we need a nice look for printing this prettilly
+ 
     ipaddress = cont.get_ips()
     console_tty = cont.get_config_item('lxc.tty')
+    root_fs = cont.get_config_item('lxc.rootfs')
+
+    try:
+        ipaddress = cont.get_ips(protocol="ipv4",
+                                 interface="eth0", timeout=0.5)
+        ipaddress = ipaddress[0]
+    except TypeError:
+        ipaddress = "Unavailable"
+    except IndexError:
+        ipaddress = "Unavailable"
+
 
     print (CYAN + """\
     Status report for container:  """ + containername + NORMAL + """
@@ -165,10 +177,18 @@ def status():
              Configuration File:  %s
                     Console TTY:  %s
 
+                        STORAGE:
+                Root Filesystem:  %s
+                     Space Used:
+                     Free Space:
+
                          MEMORY:
                    Memory Usage:  %.1f MiB
                      Swap Usage:  %s 
                      Swappiness:  %s\
+
+                      PROCESSOR:
+                        CPU Set:  %s\
 
                           STATE:
                        Init PID:  %s
@@ -181,8 +201,11 @@ def status():
                     MAC Address:  %s
                          Bridge:  %s
     """ % (lxcversion, lxchost, lxcguest, lxc.arch, config_file,
-           console_tty, memusage,
-           swapusage, swappiness, init_pid, autostart, state, tasks,
+           console_tty,
+           root_fs,
+           memusage, swapusage, swappiness,
+           cpu_set,
+           init_pid, autostart, state, tasks,
            ipaddress, macaddress, bridge_device))
     print (CYAN + "    Tip: " + NORMAL +
            "'llxc status' is experimental and subject to behavioural change")
@@ -436,30 +459,6 @@ def killall():
             kill()
 
 
-# Tests
-
-def requires_root():
-    """Tests whether the user is root. Required for many functions"""
-    if not os.getuid() == 0:
-        print(_("   %sERROR 403:%s This function requires root. \
-                Further execution has been aborted." % (RED, NORMAL)))
-        sys.exit(403)
-
-
-def confirm_container_existance():
-    """Checks whether specified container exists before execution."""
-    try:
-        if not os.path.exists(CONTAINER_PATH + containername):
-            print (_("   %sERROR 404:%s That container (%s)"
-                     "could not be found."
-                      % (RED, NORMAL, containername)))
-            sys.exit(404)
-    except NameError:
-        print (_("   %sERROR 400:%s You must specify a container."
-                  % (RED, NORMAL)))
-        sys.exit(404)
-
-
 def gen_sshkeys():
     """Generate SSH keys to access containers with"""
     # m2crypto hasn't been ported to python3 yet
@@ -575,6 +574,30 @@ def console():
         print ("Detached from LXC console: %s" % (containername))
     else:
         print ("   %serror:%s please check status" % (RED, NORMAL))
+
+
+# Tests
+
+def requires_root():
+    """Tests whether the user is root. Required for many functions"""
+    if not os.getuid() == 0:
+        print(_("   %sERROR 403:%s This function requires root. \
+                Further execution has been aborted." % (RED, NORMAL)))
+        sys.exit(403)
+
+
+def confirm_container_existance():
+    """Checks whether specified container exists before execution."""
+    try:
+        if not os.path.exists(CONTAINER_PATH + containername):
+            print (_("   %sERROR 404:%s That container (%s)"
+                     "could not be found."
+                      % (RED, NORMAL, containername)))
+            sys.exit(404)
+    except NameError:
+        print (_("   %sERROR 400:%s You must specify a container."
+                  % (RED, NORMAL)))
+        sys.exit(404)
 
 
 # Argument parsing
