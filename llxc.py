@@ -118,44 +118,60 @@ def status():
 
     cont = lxc.Container(containername)
 
-    # gather some data
+    # System Stuff: 
     state = lxc.Container(containername).state.swapcase()
+
     if os.path.lexists(AUTOSTART_PATH + containername):
         autostart = "enabled"
     else:
         autostart = "disabled"
+
     lxcversion = os.popen("lxc-version | awk {'print $3'}").read()
+
     lxchost = os.popen("lsb_release -d | awk '{print $2, $3}'").read()
+
     tasks = sum(1 for line in open(CGROUP_PATH + "cpuset/lxc/" +
                 containername + "/tasks", 'r'))
-    swappiness = open(CGROUP_PATH + "memory/lxc/" + containername +
-                      "/memory.swappiness", 'r').read()
-    memusage = int(open(CGROUP_PATH + "memory/lxc/" + containername +
-                   "/memory.memsw.usage_in_bytes", 'r').read()) / 1000 / 1000
+
     init_pid = lxc.Container(containername).init_pid
+
     config_file = lxc.Container(containername).config_file_name
 
-    cpu_set = open(CGROUP_PATH + "cpuset/lxc/" +
-                   containername + "/cpuset.cpus", 'r').read()
+    console_tty = cont.get_config_item('lxc.tty')
 
-    # TODO:
-    # swapusage = open(CGROUP_PATH + "memory/lxc/" + containername + "/..."
-    lxcguest = "Not implemented"
-    swapusage = "Not implemented"
+    # Memory Stuff:
+    for line in open(CGROUP_PATH + "memory/lxc/" +
+                     containername + "/memory.stat", 'r'):
+        if "total_swap" in line:
+            swap_usage = (int(line.replace('total_swap ', '')) / 1000 / 1000)
+
+    swappiness = open(CGROUP_PATH + "memory/lxc/" + containername +
+                      "/memory.swappiness", 'r').read()
+
+    memusage = int(open(CGROUP_PATH + "memory/lxc/" + containername +
+                   "/memory.memsw.usage_in_bytes", 'r').read()) / 1000 / 1000
+
+    # Networking Stuff:
     if cont.get_config_item('lxc.network.link'):
         bridge_device = cont.get_config_item('lxc.network.link')
     else:
         bridge_device = "unknown"
-    lxc.arch = cont.get_config_item('lxc.arch')
-    lxc.tty = cont.get_config_item('lxc.tty')
+
+
     if cont.get_config_item('lxc.network.hwaddr'):
         macaddress = cont.get_config_item('lxc.network.hwaddr')
     else:
         macaddress = "unknown"
- 
+
     ipaddress = cont.get_ips()
-    console_tty = cont.get_config_item('lxc.tty')
+
+    # Currently Unsorted:
+    lxcguest = "Not implemented"
+    lxc.arch = cont.get_config_item('lxc.arch')
+    lxc.tty = cont.get_config_item('lxc.tty')
     root_fs = cont.get_config_item('lxc.rootfs')
+    cpu_set = open(CGROUP_PATH + "cpuset/lxc/" +
+                   containername + "/cpuset.cpus", 'r').read()
 
     try:
         ipaddress = cont.get_ips(protocol="ipv4",
@@ -183,8 +199,8 @@ def status():
                      Free Space:
 
                          MEMORY:
-                   Memory Usage:  %.1f MiB
-                     Swap Usage:  %s 
+                   Memory Usage:  %.2f MiB
+                     Swap Usage:  %.2f MiB
                      Swappiness:  %s\
 
                       PROCESSOR:
@@ -203,7 +219,7 @@ def status():
     """ % (lxcversion, lxchost, lxcguest, lxc.arch, config_file,
            console_tty,
            root_fs,
-           memusage, swapusage, swappiness,
+           memusage, swap_usage, swappiness,
            cpu_set,
            init_pid, autostart, state, tasks,
            ipaddress, macaddress, bridge_device))
@@ -562,8 +578,9 @@ def diagnostics():
 
 def printconfig():
     """Prints LXC Configuration"""
-    print ("Not Implemented")
+    cont = lxc.Container(containername)
 
+    cont.load_config()
 
 def console():
     """Attaches to an LXC console"""
@@ -730,6 +747,8 @@ sp_runinall.add_argument('command', type=str, nargs='?',
 sp_printconfig = sp.add_parser('printconfig',
                                help='Print LXC container configuration')
 sp_printconfig.set_defaults(function=printconfig)
+sp_printconfig.add_argument('containername', type=str,
+                        help="Name of the container to attach console")
 
 sp_console = sp.add_parser('console',
                            help='Enter LXC Console')

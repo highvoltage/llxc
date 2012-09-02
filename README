@@ -27,3 +27,4 @@ Depends:
     * python3
     * python3-lxc
     * python3-crypto
+    * lvm2

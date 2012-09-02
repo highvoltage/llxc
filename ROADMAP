@@ -1,7 +1,9 @@
 LLXC Roadmap.
 
+
 Everything is subject to change, especially as things progress to
 future versions.
+
 
 0.1 - Previous Release
  * [x] stop a container
@@ -14,6 +16,7 @@ future versions.
  * [x] fix command line parsing
  * [x] working status page, even if crude
  * [x] basic container listing
+
 
 0.2 - Current Release - 2012-08-25
  * [x] clone a container
@@ -28,6 +31,7 @@ future versions.
  * [x] stopall - stopall containers
  * [x] list archived containers
 
+
 0.3 - Current Development Version
  * [i] diagnostics of lxc system
  * [ ] lvm filesystem awareness
@@ -38,10 +42,11 @@ future versions.
  * [x] add init_pid to status
  * [x] add conig_file_name to status
  * [x] attach to console
- * [ ] show swap usage in status
+ * [x] show swap usage in status
 
 
 0.4 - Future Release
+ * [ ] btrfs filesystem awareness
  * [ ] Basic awareness of other hosts
  * [ ] Split functions off of llxc script
  * [ ] configuration profiles awareness for puppet
@@ -70,11 +75,14 @@ future versions.
 0.6 - Future Release
  * [ ] logging
 
+
 0.9 - Future Release
  * [ ] Add all TODO and FIXME lines here to be removed
 
-1.0 - Future feature complete release
+
+1.0 - Future feature-complete release
  * [ ]
+
 
 1.1 - Future Release
  * [ ] ncurses interface
