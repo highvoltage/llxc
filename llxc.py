@@ -118,6 +118,8 @@ def status():
     #test.get_config_item("lxc.rootfs")
     confirm_container_existance()
 
+    cont = lxc.Container(containername)
+
     # gather some data
     state = lxc.Container(containername).state.swapcase()
     if os.path.lexists(AUTOSTART_PATH + containername):
@@ -134,9 +136,24 @@ def status():
                    "/memory.memsw.usage_in_bytes", 'r').read()) / 1000 / 1000
     init_pid = lxc.Container(containername).init_pid
     config_file = lxc.Container(containername).config_file_name
-    # FIXME: Add swap usage
+
+    # TODO:
     # swapusage = open(CGROUP_PATH + "memory/lxc/" + containername + "/..."
     lxcguest = "Not implemented"
+    swapusage = "Not implemented"
+    if cont.get_config_item('lxc.network.link'):
+        bridge_device = cont.get_config_item('lxc.network.link')
+    else:
+        bridge_device = "unknown"
+    lxc.arch = cont.get_config_item('lxc.arch')
+    lxc.tty = cont.get_config_item('lxc.tty')
+    if cont.get_config_item('lxc.network.hwaddr'):
+        macaddress = cont.get_config_item('lxc.network.hwaddr')
+    else:
+        macaddress = "unknown"
+    #TODO: we need a nice look for printing this prettilly
+    ipaddress = cont.get_ips()
+    console_tty = cont.get_config_item('lxc.tty')
 
     print (CYAN + """\
     Status report for container:  """ + containername + NORMAL + """
@@ -144,11 +161,13 @@ def status():
                     LXC Version:  %s\
                        LXC Host:  %s\
                       LXC Guest:  %s
+             Guest Architecture:  %s
              Configuration File:  %s
+                    Console TTY:  %s
 
                          MEMORY:
                    Memory Usage:  %.1f MiB
-                     Swap Usage:  Not implemented
+                     Swap Usage:  %s 
                      Swappiness:  %s\
 
                           STATE:
@@ -156,8 +175,15 @@ def status():
          Autostart on host boot:  %s
                   Current state:  %s
               Running processes:  %s
-    """ % (lxcversion, lxchost, lxcguest, config_file, memusage,
-           swappiness, init_pid, autostart, state, tasks))
+
+                     NETWORKING:
+                     IP Address:  %s
+                    MAC Address:  %s
+                         Bridge:  %s
+    """ % (lxcversion, lxchost, lxcguest, lxc.arch, config_file,
+           console_tty, memusage,
+           swapusage, swappiness, init_pid, autostart, state, tasks,
+           ipaddress, macaddress, bridge_device))
     print (CYAN + "    Tip: " + NORMAL +
            "'llxc status' is experimental and subject to behavioural change")
 
@@ -195,7 +221,7 @@ def start():
     print (" * Starting %s..." % (containername))
     cont = lxc.Container(containername)
     if cont.start():
-        print ("   %s%s sucessfully started%s"
+        print ("   %s%s sucessfully started%s" 
                % (GREEN, containername, NORMAL))
 
 

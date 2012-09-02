@@ -33,12 +33,11 @@ future versions.
  * [ ] lvm filesystem awareness
  * [i] printconfig - show config for container
  * [i] runinall - exec a command in all containers
- * [ ] all strings are translable
+ * [ ] all strings are translatable
  * [ ] go through all TODO and FIXMEs and fix what's fixable
  * [x] add init_pid to status
  * [x] add conig_file_name to status
  * [x] attach to console
- * [ ] fix memory display in status
  * [ ] show swap usage in status
 
 
@@ -53,6 +52,7 @@ future versions.
  * [ ] man page
  * [ ] set config key
  * [ ] clear config key
+ * [ ] fix memory display in status
 
 
 0.5 - Future Release
