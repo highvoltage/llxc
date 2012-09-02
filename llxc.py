@@ -119,7 +119,7 @@ def status():
 
     cont = lxc.Container(containername)
 
-    # System Stuff: 
+    # System Stuff:
     state = lxc.Container(containername).state.swapcase()
 
     if os.path.lexists(AUTOSTART_PATH + containername):
@@ -164,7 +164,6 @@ def status():
     else:
         bridge_device = "unknown"
 
-
     if cont.get_config_item('lxc.network.hwaddr'):
         macaddress = cont.get_config_item('lxc.network.hwaddr')
     else:
@@ -181,7 +180,6 @@ def status():
     except IndexError:
         ipaddress = "Unavailable"
 
-
     # Currently Unsorted:
     lxcguest = "Not implemented"
     lxc.arch = cont.get_config_item('lxc.arch')
@@ -189,7 +187,6 @@ def status():
     root_fs = cont.get_config_item('lxc.rootfs')
     cpu_set = open(CGROUP_PATH + "cpuset/lxc/" +
                    containername + "/cpuset.cpus", 'r').read()
-
 
     print (CYAN + """\
     Status report for container:  """ + containername + NORMAL + """
@@ -268,7 +265,7 @@ def start():
     requires_container_existance()
     cont = lxc.Container(containername)
     if cont.start():
-        print ("   %s%s sucessfully started%s" 
+        print ("   %s%s sucessfully started%s"
                % (GREEN, containername, NORMAL))
 
 
@@ -636,9 +633,9 @@ def requires_network_bridge():
         ifconfig_output = os.popen("ifconfig " + network_bridge)
 
         if "Device not found" in ifconfig_output:
-            print ("   %serror:%s The network device %s does not seem to be"
+            print (_("   %serror:%s The network device %s does not seem to be"
                    " available."
-                   % (RED, NORMAL, network_bridge))
+                   % (RED, NORMAL, network_bridge)))
 
 
 def requires_container_existance():
@@ -658,20 +655,20 @@ def requires_container_existance():
 def requires_free_disk_space():
     """Checks whether we have anough free disk space on the LXC partition"""
     """before proceding."""
-    # config is in: MIN_REQ_DISK_SPACE 
+    # config is in: MIN_REQ_DISK_SPACE
     stat = os.statvfs(CONTAINER_PATH)
     free_space = stat.f_bsize * stat.f_bavail / 1000 / 1000
     total_space = stat.f_blocks * stat.f_frsize / 1000 / 1000
     used_space = (stat.f_blocks - stat.f_bfree) * stat.f_frsize
     if free_space <= MIN_REQ_DISK_SPACE:
-        print ("   %serror:%s Insuficcient available disk space: %.2f MiB"
-               % (RED, NORMAL, free_space))
+        print (_("   %serror:%s Insuficcient available disk space: %.2f MiB"
+               % (RED, NORMAL, free_space)))
         sys.exit(1)
 
 
 def requires_free_memory():
     """Checkss memory status and warns if memory usage is high"""
-    print ("Not Implemented")
+    print (_("Not Implemented"))
 
 # Argument parsing
 
@@ -686,11 +683,11 @@ parser.add_argument("-if", "--interface", type=str, default="eth0",
 parser.add_argument("-ip", "--ipstack", type=str, default="ipv4",
                      help=_("Network IP to list, ex: ipv4, ipv6"))
 
-sp = parser.add_subparsers(help='sub command help')
+sp = parser.add_subparsers(help=_('sub command help'))
 
-sp_create = sp.add_parser('create', help='Create a container')
+sp_create = sp.add_parser('create', help=_('Create a container'))
 sp_create.add_argument('containername', type=str,
-                        help='name of the container')
+                        help=_('name of the container'))
 sp_create.set_defaults(function=create)
 
 sp_destroy = sp.add_parser('destroy', help='Destroy a container')
