@@ -130,8 +130,11 @@ def status():
 
     lxchost = os.popen("lsb_release -d | awk '{print $2, $3}'").read()
 
-    tasks = sum(1 for line in open(CGROUP_PATH + "cpuset/lxc/" +
-                containername + "/tasks", 'r'))
+    try:
+        tasks = sum(1 for line in open(CGROUP_PATH + "cpuset/lxc/" +
+                    containername + "/tasks", 'r'))
+    except IOError:
+        tasks = 0
 
     init_pid = lxc.Container(containername).init_pid
 
@@ -579,8 +582,10 @@ def diagnostics():
 def printconfig():
     """Prints LXC Configuration"""
     cont = lxc.Container(containername)
+    conffile = lxc.Container(containername).config_file_name
+    for line in open(conffile, 'r'):
+        print (line)
 
-    cont.load_config()
 
 def console():
     """Attaches to an LXC console"""
