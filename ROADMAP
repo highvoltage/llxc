@@ -75,6 +75,7 @@ future versions.
 0.6 - Future Release
  * [ ] logging
  * [ ] ladders for listing, like memory ladder, reverse memmory ladder, etc
+ * [ ] check available swap/memory before creating a container
 
 
 0.9 - Future Release

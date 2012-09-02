@@ -156,6 +156,9 @@ def status():
                    "/memory.memsw.usage_in_bytes", 'r').read()) / 1000 / 1000
 
     # Networking Stuff:
+    # TODO: Should use the same loops here as in the require_network_bridge
+    #       check
+
     if cont.get_config_item('lxc.network.link'):
         bridge_device = cont.get_config_item('lxc.network.link')
     else:
@@ -169,14 +172,6 @@ def status():
 
     ipaddress = cont.get_ips()
 
-    # Currently Unsorted:
-    lxcguest = "Not implemented"
-    lxc.arch = cont.get_config_item('lxc.arch')
-    lxc.tty = cont.get_config_item('lxc.tty')
-    root_fs = cont.get_config_item('lxc.rootfs')
-    cpu_set = open(CGROUP_PATH + "cpuset/lxc/" +
-                   containername + "/cpuset.cpus", 'r').read()
-
     try:
         ipaddress = cont.get_ips(protocol="ipv4",
                                  interface="eth0", timeout=0.5)
@@ -185,6 +180,15 @@ def status():
         ipaddress = "Unavailable"
     except IndexError:
         ipaddress = "Unavailable"
+
+
+    # Currently Unsorted:
+    lxcguest = "Not implemented"
+    lxc.arch = cont.get_config_item('lxc.arch')
+    lxc.tty = cont.get_config_item('lxc.tty')
+    root_fs = cont.get_config_item('lxc.rootfs')
+    cpu_set = open(CGROUP_PATH + "cpuset/lxc/" +
+                   containername + "/cpuset.cpus", 'r').read()
 
 
     print (CYAN + """\
@@ -258,9 +262,9 @@ def stop():
 
 def start():
     """Start LXC Container"""
-    # TODO: confirm that networking (ie, lxcbr) is available before starting
     requires_root()
     print (" * Starting %s..." % (containername))
+    requires_network_bridge()
     requires_container_existance()
     cont = lxc.Container(containername)
     if cont.start():
@@ -337,7 +341,6 @@ def toggleautostart():
 def create():
     """Create LXC Container"""
     requires_root()
-    # TODO: warn at least if we're very low on memory or using a lot of swap
     print (" * Creating container: %s..." % (containername))
     requires_container_nonexistance()
     requires_free_disk_space()
@@ -419,9 +422,9 @@ def archive():
 
 def unarchive():
     """Unarchive LXC container"""
-    requires_root()
     #TODO: confirm container doesn't exist
     print (" * Unarchiving container: %s..." % (containername))
+    requires_container_nonexistance()
     previous_path = os.getcwd()
     os.chdir(CONTAINER_PATH)
     tar = tarfile.open(ARCHIVE_PATH + containername + ".tar.gz", "r:gz")
@@ -619,7 +622,23 @@ def requires_container_nonexistance():
 
 def requires_network_bridge():
     """Prints an error message if container's network bridge is unavailable"""
-    print ("Not implemented")
+
+    cont = lxc.Container(containername)
+
+    # How many cards are configured:
+    network_configurations = len(cont.network)
+
+    # Loop through them and check that they're at least kind of up
+    count = 0
+    while count < network_configurations:
+        network_bridge = cont.network[count].link
+        count = count + 1
+        ifconfig_output = os.popen("ifconfig " + network_bridge)
+
+        if "Device not found" in ifconfig_output:
+            print ("   %serror:%s The network device %s does not seem to be"
+                   " available."
+                   % (RED, NORMAL, network_bridge))
 
 
 def requires_container_existance():
