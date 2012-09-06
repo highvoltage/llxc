@@ -114,7 +114,6 @@ def listarchive():
 
 def status():
     """Prints a status report for specified container"""
-    # TODO: Add disk usage depending on LVM or plain directory
     requires_container_existance()
 
     cont = lxc.Container(containername)
@@ -392,12 +391,12 @@ def clone():
 
 def archive():
     """Archive LXC container by tarring it up and removing it."""
-    #TODO: check thatthat archivepath exists and create it if not
+    if not os.path.exists(ARCHIVE_PATH):
+        os.path.mkdir(ARCHIVE_PATH)
     requires_root()
     requires_container_existance()
     halt()
     print (_(" * Archiving container: %s..." % (containername)))
-    #TODO: A progress indicator would be nice.
     previous_path = os.getcwd()
     os.chdir(CONTAINER_PATH)
     tar = tarfile.open(ARCHIVE_PATH + containername + ".tar.gz", "w:gz")
@@ -410,7 +409,6 @@ def archive():
            % (CONTAINER_PATH + containername)))
     if os.path.isdir(CONTAINER_PATH + containername):
         shutil.rmtree(CONTAINER_PATH + containername)
-    # TODO: tore the autostart path and restore it in unarchive
     if os.path.lexists(AUTOSTART_PATH + containername):
         print (_(" * Autostart was enabled for this container, disabling..."))
         os.remove(AUTOSTART_PATH + containername)
@@ -454,7 +452,12 @@ def runinall():
         if lxc.Container(containername).state.swapcase() == "running":
             print (_(" * Executing %s in %s..." % (args.command,
                      containername)))
-            #TODO: run commands her
+            return_code = call("ssh %s %s"
+                               % (containername, args.command), shell=True)
+            if not return_code == 0:
+                print (_("    %swarning:%s last exit code in container: %s"
+                         % (YELLOW, NORMAL, return_code)))
+
         else:
             print (_(" * %sWarning:%s Container %s not running, skipped..."
                      % (YELLOW, NORMAL, containername)))
@@ -485,8 +488,14 @@ def gen_sshkeys():
     """Generate SSH keys to access containers with"""
     # m2crypto hasn't been ported to python3 yet
     # so for now we do it via shell
-    # TODO: check if keypair already exists
     print (_(" * Generating ssh keypair..."))
+    if  os.path.exists("/var/lib/llxc/ssh/container_rsa"):
+        print (_("   %swarning:%s old keypair found, making a backup..."
+                 % (YELLOW, NORMAL)))
+        shutil.copy2("/var/lib/llxc/ssh/container_rsa",
+                     "container_rsa.bak")
+        shutil.copy2("/var/lib/llxc/ssh/container_rsa.pub",
+                     "container_rsa.pub.bak")
     directory = os.path.dirname("/var/lib/llxc/ssh/")
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -499,7 +508,6 @@ def gen_sshkeys():
 
 def update_sshkeys():
     """Update ssh keys in LXC containers"""
-    # TODO: update keys for aware hosts
     print (_(" * Updating keys..."))
     # read public key file:
     pkey = open(LLXCHOME_PATH + "ssh/container_rsa.pub", "r")

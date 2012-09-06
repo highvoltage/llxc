@@ -35,10 +35,14 @@ future versions.
 0.3 - Current Development Version
  * [i] basic diagnostics of lxc system
  * [x] printconfig - show config for container
- * [i] runinall - exec a command in all containers
+ * [x] runinall - exec a command in all containers
  * [x] all strings are translatable
  * [ ] go through all TODO and FIXMEs and fix what's fixable
  * [x] add init_pid to status
+ * [ ] add a test for btrfs filesystems
+ :q
+ * [ ] btrfs awareness for archiving/unarchiving
+ * [ ] btrfs awareness for destroying
  * [x] add conig_file_name to status
  * [x] attach to console
  * [x] show swap usage in status
@@ -77,6 +81,7 @@ future versions.
  * [ ] ladders for listing, like memory ladder, reverse memmory ladder, etc
  * [ ] check available swap/memory before creating a container
  * [ ] encrypted containers
+ * [ ] store some state when archiving containers, like autostart state
 
 
 0.9 - Future Release
@@ -89,3 +94,4 @@ future versions.
 
 1.1 - Future Release
  * [ ] ncurses interface
+ * [ ] progress bars for things like archive
