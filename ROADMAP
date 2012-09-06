@@ -33,8 +33,7 @@ future versions.
 
 
 0.3 - Current Development Version
- * [i] diagnostics of lxc system
- * [ ] lvm filesystem awareness
+ * [i] basic diagnostics of lxc system
  * [x] printconfig - show config for container
  * [i] runinall - exec a command in all containers
  * [x] all strings are translatable
@@ -58,6 +57,7 @@ future versions.
  * [ ] set config key
  * [ ] clear config key
  * [ ] fix memory display in status
+ * [ ] lvm filesystem awareness
 
 
 0.5 - Future Release
@@ -76,6 +76,7 @@ future versions.
  * [ ] logging
  * [ ] ladders for listing, like memory ladder, reverse memmory ladder, etc
  * [ ] check available swap/memory before creating a container
+ * [ ] encrypted containers
 
 
 0.9 - Future Release
