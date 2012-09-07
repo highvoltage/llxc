@@ -114,9 +114,6 @@ def listarchive():
 
 def status():
     """Prints a status report for specified container"""
-
-    print (is_lxcpath_on_btrfs())
-
     requires_container_existance()
 
     cont = lxc.Container(containername)
@@ -684,9 +681,9 @@ def requires_free_memory():
     print (_("Not Implemented"))
 
 
-def is_lxcpath_on_btrfs():
-    """Check whether lxcpath is on btrfs, returns true if it is"""
-    btrfs_output = os.popen("btrfs filesystem df " + CONTAINER_PATH).read()
+def is_path_on_btrfs(path):
+    """Check whether a path is on btrfs, returns true if it is"""
+    btrfs_output = os.popen("btrfs filesystem df " + path).read()
     if "Data" in btrfs_output:
         return True
     else:
