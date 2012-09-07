@@ -407,6 +407,11 @@ def archive():
            % (GREEN, CONTAINER_PATH, containername, NORMAL)))
     print (_(" * Removing container path %s..."
            % (CONTAINER_PATH + containername)))
+    if is_path_on_btrfs(CONTAINER_PATH + containername):
+        print (_("   container is on btrfs, removing subvolume..."))
+        os.popen("btrfs subvolume delete " + containername + "/rootfs")
+        # Stupid race conditions. There's a delay
+        time.sleep(0.5)
     if os.path.isdir(CONTAINER_PATH + containername):
         shutil.rmtree(CONTAINER_PATH + containername)
     if os.path.lexists(AUTOSTART_PATH + containername):
@@ -421,6 +426,10 @@ def unarchive():
     #TODO: confirm container doesn't exist
     print (_(" * Unarchiving container: %s..." % (containername)))
     requires_container_nonexistance()
+    # If we're on btrfs we should create a subvolume
+    if is_path_on_btrfs(CONTAINER_PATH):
+        print ("   container path is on btrfs, creating subvolume...")
+        os.popen("btrfs subvolume create " + containername)
     previous_path = os.getcwd()
     os.chdir(CONTAINER_PATH)
     tar = tarfile.open(ARCHIVE_PATH + containername + ".tar.gz", "r:gz")
