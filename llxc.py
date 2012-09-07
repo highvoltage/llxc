@@ -114,6 +114,9 @@ def listarchive():
 
 def status():
     """Prints a status report for specified container"""
+
+    print (is_lxcpath_on_btrfs())
+
     requires_container_existance()
 
     cont = lxc.Container(containername)
@@ -489,7 +492,7 @@ def gen_sshkeys():
     # m2crypto hasn't been ported to python3 yet
     # so for now we do it via shell
     print (_(" * Generating ssh keypair..."))
-    if  os.path.exists("/var/lib/llxc/ssh/container_rsa"):
+    if os.path.exists("/var/lib/llxc/ssh/container_rsa"):
         print (_("   %swarning:%s old keypair found, making a backup..."
                  % (YELLOW, NORMAL)))
         shutil.copy2("/var/lib/llxc/ssh/container_rsa",
@@ -679,6 +682,16 @@ def requires_free_disk_space():
 def requires_free_memory():
     """Checkss memory status and warns if memory usage is high"""
     print (_("Not Implemented"))
+
+
+def is_lxcpath_on_btrfs():
+    """Check whether lxcpath is on btrfs, returns true if it is"""
+    btrfs_output = os.popen("btrfs filesystem df " + CONTAINER_PATH).read()
+    if "Data" in btrfs_output:
+        return True
+    else:
+        return False
+
 
 # Argument parsing
 
