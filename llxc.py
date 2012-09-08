@@ -378,12 +378,12 @@ def clone():
     requires_root()
     origcont = lxc.Container(containername)
     if not origcont.defined:
-        print ("    %serror 404:%s container %s does not exist"
+        print ("   %serror 404:%s container %s does not exist"
                % (RED, NORMAL, containername))
         sys.exit(404)
     cont = lxc.Container(args.newcontainername)
     if cont.defined:
-        print ("    %serror:%s container %s already exists"
+        print ("   %serror:%s container %s already exists"
                % (RED, NORMAL, args.containername))
         sys.exit(1)
     print (_(" * Cloning %s in to %s..."
@@ -431,8 +431,12 @@ def archive():
 
 def unarchive():
     """Unarchive LXC container"""
-    #TODO: confirm container doesn't exist
     print (_(" * Unarchiving container: %s..." % (containername)))
+    cont = lxc.Container(containername)
+    if cont.defined:
+        print ("   %serror:%s a container by name %s already exists unarchived"
+               % (RED, NORMAL, containername))
+        exit(1)
     requires_container_nonexistance()
     # If we're on btrfs we should create a subvolume
     if is_path_on_btrfs(CONTAINER_PATH):
