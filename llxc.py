@@ -45,14 +45,18 @@ from subprocess import call
 # Set up translations via gettext
 gettext.textdomain("llxc")
 
-# Set some variables
+# Set Paths
 CONTAINER_PATH = "/var/lib/lxc/"
 AUTOSTART_PATH = "/etc/lxc/auto/"
 CGROUP_PATH = "/sys/fs/cgroup/"
 ARCHIVE_PATH = CONTAINER_PATH + ".archive/"
 LLXCHOME_PATH = "/var/lib/llxc/"
+
+# Other settings
+
 # 5000000000 = 5 GiB
 MIN_REQ_DISK_SPACE = 5000000000
+KERNEL_VERSION = os.popen("uname -r").read().rstrip()
 
 # Set colours, unless llxcmono is set
 try:
@@ -583,32 +587,72 @@ def enter():
            % (GREEN, containername, NORMAL)))
 
 
-def diagnostics():
+def checkconfig():
     """Prints any information we can provide on the LXC Host system"""
     # TODO: make the capability to use an external config filelike
     #       lxc-checkconfig
-    print (_("LXC Diagnostics"))
+
+    if not os.path.exists("/boot/config-" + KERNEL_VERSION):
+        print ("   %serror 404:%s could not find kernel config, please report a bug"
+              " with your system info"
+              % (RED, NORMAL))
+        sys.exit(404)
+
+    kernelconfig = open("/boot/config-" + KERNEL_VERSION, 'r').read()
+
+    def confcheck(configkey):
+        if configkey + "=y" or configkey + "=m" in kernelconfig:
+            return GREEN + "enabled" + NORMAL
+        else:
+            return RED + "disabled" + NORMAL
+
+    def cgroupcheck(path):
+        if os.path.exists(CGROUP_PATH + path):
+            return GREEN + "enabled" + NORMAL
+        else:
+            return RED + "disabled" + NORMAL
+
+    print (_("LXC Config report for kernel: %s%s%s\n")
+             % (CYAN, KERNEL_VERSION, NORMAL))
     print (_("  NAMESPACES:"))
-    print (_("    Namespaces: %s"))
-    print (_("    Utsname namespace: %s"))
-    print (_("    Ipc namespace: %s"))
-    print (_("    Pid namespace: %s"))
-    print (_("    User namespace: %s"))
-    print (_("    Network namespace: %s"))
-    print (_("    Multiple /dev/pts instances: %s"))
+    print (_("    Namespaces: %s")
+             % (confcheck('CONFIG_NAMESPACES')))
+    print (_("    UTS name namespace: %s")
+             % (confcheck('CONFIG_UTS_NS')))
+    print (_("    IPS namespace: %s")
+             % (confcheck('CONFIG_IPC_NS')))
+    print (_("    PID namespace: %s")
+             % (confcheck('CONFIG_PID_NS')))
+    print (_("    User namespace: %s")
+             % (confcheck('CONFIG_USER_NS')))
+    print (_("    Network namespace: %s")
+             % (confcheck('CONFIG_NET_NS')))
+    print (_("    Multiple /dev/pts instances: %s")
+             % (confcheck('DEVPTS_MULTIPLE_INSTANCES')))
     print (_("  CONTROL GROUPS:"))
-    print (_("    Cgroup: %s"))
-    print (_("    Cgroup clone_children flag: %s"))
-    print (_("    Cgroup device: %s"))
-    print (_("    Cgroup sched: %s"))
-    print (_("    Cgroup cpu account: %s"))
-    print (_("    Cgroup memory controller: %s"))
-    print (_("    Cgroup cpuset: %s"))
+    print (_("    Cgroup: %s")
+             % (confcheck('CONFIG_CGROUPS')))
+    print (_("    Cgroup clone_children flag: %s")
+             % (cgroupcheck('/cpuset//cgroup.clone_children')))
+    print (_("    Cgroup device: %s")
+             % (confcheck('CONFIG_CGROUP_DEVICE')))
+    print (_("    Cgroup sched: %s")
+             % (confcheck('CONFIG_CGROUP_SCHED')))
+    print (_("    Cgroup cpu account: %s")
+             % (confcheck('CONFIG_CGROUP_CPUACCT')))
+    print (_("    Cgroup memory controller: %s")
+             % (confcheck('CONFIG_CGROUP_MEM_RES_CTLR')))
+    print (_("    Cgroup cpuset: %s")
+             % (confcheck('CONFIG_CPUSETS')))
     print (_("  MISC:"))
-    print (_("    Veth pair device: %s"))
-    print (_("    Macvlan: %s"))
-    print (_("    Vlan: %s"))
-    print (_("    File capabilities: %s"))
+    print (_("    Veth pair device: %s")
+             % (confcheck('CONFIG_VETH')))
+    print (_("    Macvlan: %s")
+             % (confcheck('CONFIG_MACVLAN')))
+    print (_("    Vlan: %s")
+             % (confcheck('CONFIG_VLAN_8021Q')))
+    print (_("    File capabilities: %s")
+             % (confcheck('CONFIG_SECURITY_FILE_CAPABILITIES')))
 
 
 def printconfig():
@@ -828,21 +872,23 @@ sp_enter.add_argument('containername', type=str,
                         help="Name of the container to enter")
 sp_enter.set_defaults(function=enter)
 
-sp_diagnostics = sp.add_parser('diagnostics',
-                               help='Print available diagnostics information')
-sp_diagnostics.set_defaults(function=diagnostics)
+sp_checkconfig = sp.add_parser('checkconfig',
+                               help='Print available checkconfig information')
+sp_checkconfig.set_defaults(function=checkconfig)
+#sp_checkconfig.add_argument('configpath', type=str,
+#                            help="Name of kernel config to check")
 
 sp_runinall = sp.add_parser('runinall',
                             help='Run command in all containers')
 sp_runinall.set_defaults(function=runinall)
 sp_runinall.add_argument('command', type=str, nargs='?',
-                        help="Command to be executed")
+                         help="Command to be executed")
 
 sp_printconfig = sp.add_parser('printconfig',
                                help='Print LXC container configuration')
 sp_printconfig.set_defaults(function=printconfig)
 sp_printconfig.add_argument('containername', type=str,
-                        help="Name of the container to attach console")
+                            help="Name of the container to attach console")
 
 sp_console = sp.add_parser('console',
                            help='Enter LXC Console')

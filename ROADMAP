@@ -33,16 +33,15 @@ future versions.
 
 
 0.3 - Current Development Version
- * [i] basic diagnostics of lxc system
+ * [x] checkconfig information 
  * [x] printconfig - show config for container
  * [x] runinall - exec a command in all containers
  * [x] all strings are translatable
  * [ ] go through all TODO and FIXMEs and fix what's fixable
  * [x] add init_pid to status
- * [ ] add a test for btrfs filesystems
- :q
- * [ ] btrfs awareness for archiving/unarchiving
- * [ ] btrfs awareness for destroying
+ * [x] add a test for btrfs filesystems
+ * [x] btrfs awareness for archiving/unarchiving
+ * [x] btrfs awareness for destroying
  * [x] add conig_file_name to status
  * [x] attach to console
  * [x] show swap usage in status
