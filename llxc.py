@@ -563,7 +563,7 @@ def update_sshkeys():
 
 def execute():
     """Execute a command in a container via SSH"""
-    #FIXME: There should be a way to exec commands without having
+    #TODO: There should be a way to exec commands without having
     #       to enclose it in ticks
     print (_(" * Executing '%s' in %s..." % (args.command, containername)))
     return_code = call("ssh %s %s"
@@ -593,8 +593,8 @@ def checkconfig():
     #       lxc-checkconfig
 
     if not os.path.exists("/boot/config-" + KERNEL_VERSION):
-        print ("   %serror 404:%s could not find kernel config, please report a bug"
-              " with your system info"
+        print ("   %serror 404:%s could not find kernel config, "
+               "please report a bug  with your system info"
               % (RED, NORMAL))
         sys.exit(404)
 
