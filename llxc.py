@@ -375,9 +375,17 @@ def destroy():
 
 def clone():
     """Clone LXC container"""
-    #TODO: Confirm source container exists, destination one doesn't
     requires_root()
+    origcont = lxc.Container(containername)
+    if not origcont.defined:
+        print ("    %serror 404:%s container %s does not exist"
+               % (RED, NORMAL, containername))
+        sys.exit(404)
     cont = lxc.Container(args.newcontainername)
+    if cont.defined:
+        print ("    %serror:%s container %s already exists"
+               % (RED, NORMAL, args.containername))
+        sys.exit(1)
     print (_(" * Cloning %s in to %s..."
            % (containername, args.newcontainername)))
     if cont.clone(containername):
