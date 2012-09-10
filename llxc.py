@@ -579,7 +579,8 @@ def enter():
     """Enter a container via SSH"""
     print (_(" * Entering container %s..." % (containername)))
     #print (os.popen("ssh %s" % (containername)).read())
-    return_code = call("ssh %s" % (containername), shell=True)
+    return_code = call("ssh %s -i %s"
+                  % (containername, LLXCHOME_PATH + "/ssh/container_rsa"), shell=True)
     if not return_code == 0:
         print (_("    %swarning:%s last exit code in container: %s"
                % (YELLOW, NORMAL, return_code)))
