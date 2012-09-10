@@ -33,7 +33,7 @@ future versions.
 
 
 0.3 - Current Development Version
- * [x] checkconfig information 
+ * [x] checkconfig information
  * [x] printconfig - show config for container
  * [x] runinall - exec a command in all containers
  * [x] all strings are translatable
@@ -61,11 +61,11 @@ future versions.
  * [ ] clear config key
  * [ ] fix memory display in status
  * [ ] lvm filesystem awareness
-
+ * [ ] copytoall, copy a file to all containers
 
 0.5 - Future Release
  * [ ] Initial web interface based on rlxc interface
- * [ ] btrfs features integration (ie, scrub)
+ * [ ] btrfs features integration (ie, defrag)
  * [ ] redisign list to work with configurable lists and columns
  * [ ] ephemeral containers
  * [ ] set capabilities

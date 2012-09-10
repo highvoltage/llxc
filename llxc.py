@@ -54,8 +54,8 @@ LLXCHOME_PATH = "/var/lib/llxc/"
 
 # Other settings
 
-# 5000000000 = 5 GiB
-MIN_REQ_DISK_SPACE = 5000000000
+# 5000 = 5 GiB
+MIN_REQ_DISK_SPACE = 5000
 KERNEL_VERSION = os.popen("uname -r").read().rstrip()
 
 # Set colours, unless llxcmono is set
