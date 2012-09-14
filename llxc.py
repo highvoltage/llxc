@@ -32,6 +32,7 @@ import sys
 import time
 import tarfile
 import shutil
+import subprocess
 import warnings
 
 # For now we need to filter the warning that python3-lxc produces
@@ -40,7 +41,6 @@ with warnings.catch_warnings():
     import lxc
 
 from gettext import gettext as _
-from subprocess import call
 
 # Set up translations via gettext
 gettext.textdomain("llxc")
@@ -475,10 +475,10 @@ def runinall():
         global containername
         containername = container.replace(CONTAINER_PATH, "").rstrip("/config")
         if lxc.Container(containername).state.swapcase() == "running":
-            print (_(" * Executing %s in %s..." % (args.command,
+            print (_(" * Executing %s in %s..." % (' '.join(args.command),
                      containername)))
-            return_code = call("ssh %s %s"
-                               % (containername, args.command), shell=True)
+            return_code = subprocess.call("ssh %s %s"
+            (containername, ' '.join(args.command)), shell=True)
             if not return_code == 0:
                 print (_("    %swarning:%s last exit code in container: %s"
                          % (YELLOW, NORMAL, return_code)))
@@ -563,11 +563,9 @@ def update_sshkeys():
 
 def execute():
     """Execute a command in a container via SSH"""
-    #TODO: There should be a way to exec commands without having
-    #       to enclose it in ticks
-    print (_(" * Executing '%s' in %s..." % (args.command, containername)))
-    return_code = call("ssh %s %s"
-                       % (containername, args.command), shell=True)
+    print (_(" * Executing '%s' in %s..." % (' '.join(args.command), containername)))
+    return_code = subprocess.call("ssh %s %s"
+                       % (containername, ' '.join(args.command)), shell=True)
     if not return_code == 0:
         print (_("    %swarning:%s last exit code in container: %s"
                % (YELLOW, NORMAL, return_code)))
@@ -578,8 +576,7 @@ def execute():
 def enter():
     """Enter a container via SSH"""
     print (_(" * Entering container %s..." % (containername)))
-    #print (os.popen("ssh %s" % (containername)).read())
-    return_code = call("ssh %s -i %s"
+    return_code = subprocess.call("ssh %s -i %s"
                   % (containername, LLXCHOME_PATH + "/ssh/container_rsa"), shell=True)
     if not return_code == 0:
         print (_("    %swarning:%s last exit code in container: %s"
@@ -864,7 +861,7 @@ sp_updatesshkeys.set_defaults(function=update_sshkeys)
 sp_exec = sp.add_parser('exec', help='Execute a command in container via SSH')
 sp_exec.add_argument('containername', type=str,
                         help="Name of the container to execute command in")
-sp_exec.add_argument('command', type=str, nargs='?',
+sp_exec.add_argument('command', metavar='CMD', type=str, nargs='*',
                         help="Command to be executed")
 sp_exec.set_defaults(function=execute)
 
@@ -882,7 +879,7 @@ sp_checkconfig.set_defaults(function=checkconfig)
 sp_runinall = sp.add_parser('runinall',
                             help='Run command in all containers')
 sp_runinall.set_defaults(function=runinall)
-sp_runinall.add_argument('command', type=str, nargs='?',
+sp_runinall.add_argument('command', metavar='CMD', type=str, nargs='*',
                          help="Command to be executed")
 
 sp_printconfig = sp.add_parser('printconfig',
