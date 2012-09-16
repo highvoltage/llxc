@@ -1,0 +1,1 @@
+/usr/share/javascript/twitter-bootstrap/bootstrap-alerts.js

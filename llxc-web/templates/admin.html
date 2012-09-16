@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h1> Administer LLXC </h1>
+
+<h3> Functions </h3>
+
+<li>Generate SSH Keypair</li>
+<li>Delete SSH Keys</li>
+<li>Server Status</li>
+<li>Edit Awareness</li>
+
+<h3> LLXC Web Public Key: </h3>
+
+<blockquote>
+{{ sshpubkey|safe }}
+</blockquote>
+
+{% endblock %}
