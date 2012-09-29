@@ -1,1 +1,0 @@
-/usr/share/javascript/twitter-bootstrap/bootstrap-modal.js
