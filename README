@@ -14,13 +14,19 @@ What currently works:
     * Halting all containers
     * Killing all containers
     * Starting all containers
-    * Toggle auto start for containers 
+    * Toggle auto start for containers
+    * Entering containers via ssh
+
 
 What doesn't work yet:
+    * Entering containers via tty (or does it?)
+
+
+More or less In Progress:
     * Detailed container status
-    * Entering containers
-    * Executing commands in containers
+    * Executing commands in containers via ssh
     * SSH key management
+
 
 Depends:
     * lxc, at least 0.8.0~rc1
