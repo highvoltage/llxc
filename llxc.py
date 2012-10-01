@@ -563,7 +563,8 @@ def update_sshkeys():
 
 def execute():
     """Execute a command in a container via SSH"""
-    print (_(" * Executing '%s' in %s..." % (' '.join(args.command), containername)))
+    print (_(" * Executing '%s' in %s..." % (' '.join(args.command),
+                                             containername)))
     return_code = subprocess.call("ssh %s %s"
                        % (containername, ' '.join(args.command)), shell=True)
     if not return_code == 0:
@@ -577,7 +578,8 @@ def enter():
     """Enter a container via SSH"""
     print (_(" * Entering container %s..." % (containername)))
     return_code = subprocess.call("ssh %s -i %s"
-                  % (containername, LLXCHOME_PATH + "/ssh/container_rsa"), shell=True)
+                  % (containername, LLXCHOME_PATH + "/ssh/container_rsa"),
+                     shell=True)
     if not return_code == 0:
         print (_("    %swarning:%s last exit code in container: %s"
                % (YELLOW, NORMAL, return_code)))
