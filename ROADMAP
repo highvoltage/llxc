@@ -48,6 +48,7 @@ future versions.
 
 
 0.4 - Future Release
+ * [ ] make llxc work with cgroups from debian again
  * [ ] btrfs filesystem awareness
  * [ ] Basic awareness of other hosts
  * [ ] Split functions off of llxc script
