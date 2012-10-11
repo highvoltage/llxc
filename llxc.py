@@ -158,31 +158,6 @@ def status():
     memusage = int(open(CGROUP_PATH + "memory/lxc/" + containername +
                    "/memory.memsw.usage_in_bytes", 'r').read()) / 1000 / 1000
 
-    # Networking Stuff:
-    # TODO: Should use the same loops here as in the require_network_bridge
-    #       check
-
-    if cont.get_config_item('lxc.network.link'):
-        bridge_device = cont.get_config_item('lxc.network.link')
-    else:
-        bridge_device = "unknown"
-
-    if cont.get_config_item('lxc.network.hwaddr'):
-        macaddress = cont.get_config_item('lxc.network.hwaddr')
-    else:
-        macaddress = "unknown"
-
-    ipaddress = cont.get_ips()
-
-    try:
-        ipaddress = cont.get_ips(protocol="ipv4",
-                                 interface="eth0", timeout=0.5)
-        ipaddress = ipaddress[0]
-    except TypeError:
-        ipaddress = "Unavailable"
-    except IndexError:
-        ipaddress = "Unavailable"
-
     # Currently Unsorted:
     lxcguest = "Not implemented"
     lxc.arch = cont.get_config_item('lxc.arch')
@@ -219,18 +194,49 @@ def status():
          Autostart on host boot:  %s
                   Current state:  %s
               Running processes:  %s
-
-                     NETWORKING:
-                     IP Address:  %s
-                    MAC Address:  %s
-                         Bridge:  %s
     """ % (lxcversion, lxchost, lxcguest, lxc.arch, config_file,
            console_tty,
            root_fs,
            memusage, swap_usage, swappiness,
            cpu_set,
-           init_pid, autostart, state, tasks,
-           ipaddress, macaddress, bridge_device)))
+           init_pid, autostart, state, tasks)))
+
+    # Networking report:
+    network_configurations = len(cont.network)
+    count = 0
+    while count < network_configurations:
+        network_bridge = cont.network[count].link
+        macaddress = cont.network[count].hwaddr
+        count = count + 1
+
+    ipaddress = cont.get_ips()
+
+    try:
+        ipaddress = cont.get_ips(protocol="ipv4",
+                                 interface="eth0", timeout=0.5)
+        ip4address = ipaddress[0]
+    except TypeError:
+        ip4address = "Unavailable"
+    except IndexError:
+        ip4address = "Unavailable"
+
+    try:
+        ipaddress = cont.get_ips(protocol="ipv6",
+                                 interface="eth0", timeout=0.5)
+        ip6address = ipaddress[0]
+    except TypeError:
+        ip6address = "Unavailable"
+    except IndexError:
+        ip6address = "Unavailable"
+
+    print ("""                     NETWORKING:
+         Network Configurations:  %s
+              IPv4 eth0 Address:  %s
+              IPv6 eth0 Address:  %s
+                    MAC Address:  %s
+                         Bridge:  %s
+""" % (network_configurations, ip4address, ip6address, macaddress, network_bridge))
+
     print (_(CYAN + "    Tip: " + NORMAL +
            "'llxc status' is experimental and subject to behavioural change"))
 
@@ -589,16 +595,19 @@ def enter():
 
 def checkconfig():
     """Prints any information we can provide on the LXC Host system"""
-    # TODO: make the capability to use an external config filelike
-    #       lxc-checkconfig
 
-    if not os.path.exists("/boot/config-" + KERNEL_VERSION):
-        print ("   %serror 404:%s could not find kernel config, "
-               "please report a bug  with your system info"
+    if not args.configpath:
+        configpath = "/boot/config-" + KERNEL_VERSION
+    else:
+        configpath = args.configpath
+
+    if not os.path.exists(configpath):
+        print ("   %serror 404:%s the kernel config could not be found, "
+               "please report a bug with your system info"
               % (RED, NORMAL))
         sys.exit(404)
 
-    kernelconfig = open("/boot/config-" + KERNEL_VERSION, 'r').read()
+    kernelconfig = open(configpath, 'r').read()
 
     def confcheck(configkey):
         if configkey + "=y" or configkey + "=m" in kernelconfig:
@@ -612,8 +621,8 @@ def checkconfig():
         else:
             return RED + "disabled" + NORMAL
 
-    print (_("LXC Config report for kernel: %s%s%s\n")
-             % (CYAN, KERNEL_VERSION, NORMAL))
+    print (_("LXC Kernel Config Report for: %s%s%s\n")
+             % (CYAN, configpath, NORMAL))
     print (_("  NAMESPACES:"))
     print (_("    Namespaces: %s")
              % (confcheck('CONFIG_NAMESPACES')))
@@ -875,8 +884,8 @@ sp_enter.set_defaults(function=enter)
 sp_checkconfig = sp.add_parser('checkconfig',
                                help='Print available checkconfig information')
 sp_checkconfig.set_defaults(function=checkconfig)
-#sp_checkconfig.add_argument('configpath', type=str,
-#                            help="Name of kernel config to check")
+sp_checkconfig.add_argument('configpath', type=str,
+                            help="Name of kernel config to check")
 
 sp_runinall = sp.add_parser('runinall',
                             help='Run command in all containers')

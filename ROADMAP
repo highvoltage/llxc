@@ -37,7 +37,7 @@ future versions.
  * [x] printconfig - show config for container
  * [x] runinall - exec a command in all containers
  * [x] all strings are translatable
- * [ ] go through all TODO and FIXMEs and fix what's fixable
+ * [x] go through all TODO and FIXMEs and fix what's fixable
  * [x] add init_pid to status
  * [x] add a test for btrfs filesystems
  * [x] btrfs awareness for archiving/unarchiving
