@@ -357,7 +357,7 @@ def create():
         print (_("   %scontainer %s successfully created%s"
                % (GREEN, containername, NORMAL)))
     else:
-        print (_("   %ERROR:% Something went wrong, please check status"
+        print (_("   %sERROR:%s Something went wrong, please check status"
                % (RED, NORMAL)))
     toggleautostart()
     update_sshkeys()
@@ -485,7 +485,7 @@ def runinall():
             print (_(" * Executing %s in %s..." % (' '.join(args.command),
                      containername)))
             return_code = subprocess.call("ssh %s %s"
-            (containername, ' '.join(args.command)), shell=True)
+                          (containername, ' '.join(args.command)), shell=True)
             if not return_code == 0:
                 print (_("    %swarning:%s last exit code in container: %s"
                          % (YELLOW, NORMAL, return_code)))
@@ -670,7 +670,8 @@ def checkconfig():
 
 def printconfig():
     """Prints LXC Configuration"""
-    cont = lxc.Container(containername)
+    # Currently unused here:
+    #cont = lxc.Container(containername)
     conffile = lxc.Container(containername).config_file_name
     for line in open(conffile, 'r'):
         print (line)
@@ -741,13 +742,14 @@ def requires_container_existance():
 
 
 def requires_free_disk_space():
-    """Checks whether we have anough free disk space on the LXC partition"""
-    """before proceding."""
+    """Checks whether we have anough free disk space on the LXC partition
+    before proceding."""
     # config is in: MIN_REQ_DISK_SPACE
     stat = os.statvfs(CONTAINER_PATH)
     free_space = stat.f_bsize * stat.f_bavail / 1000 / 1000
-    total_space = stat.f_blocks * stat.f_frsize / 1000 / 1000
-    used_space = (stat.f_blocks - stat.f_bfree) * stat.f_frsize
+    # currently unused:
+    #total_space = stat.f_blocks * stat.f_frsize / 1000 / 1000
+    #used_space = (stat.f_blocks - stat.f_bfree) * stat.f_frsize
     if free_space <= MIN_REQ_DISK_SPACE:
         print (_("   %serror:%s Insuficcient available disk space: %.2f MiB"
                % (RED, NORMAL, free_space)))
