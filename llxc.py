@@ -78,7 +78,7 @@ except KeyError:
 def listing():
     """Provides a list of LXC Containers"""
     print (_("%s   NAME \tTASKS \t   STATUS \tIP_ADDR_%s%s"
-           % (CYAN, args.interface.swapcase(), NORMAL)))
+           % (CYAN, ARGS.interface.swapcase(), NORMAL)))
     for container in glob.glob(CONTAINER_PATH + '*/config'):
         CONTAINERNAME = container.replace(CONTAINER_PATH, "").rstrip("/config")
         cont = lxc.Container(CONTAINERNAME)
@@ -393,13 +393,13 @@ def clone():
         print ("   %serror 404:%s container %s does not exist"
                % (RED, NORMAL, CONTAINERNAME))
         sys.exit(404)
-    cont = lxc.Container(args.newCONTAINERNAME)
+    cont = lxc.Container(ARGS.newCONTAINERNAME)
     if cont.defined:
         print ("   %serror:%s container %s already exists"
-               % (RED, NORMAL, args.CONTAINERNAME))
+               % (RED, NORMAL, ARGS.CONTAINERNAME))
         sys.exit(1)
     print (_(" * Cloning %s in to %s..."
-           % (CONTAINERNAME, args.newCONTAINERNAME)))
+           % (CONTAINERNAME, ARGS.newCONTAINERNAME)))
     if cont.clone(CONTAINERNAME):
         print (_("   %scloning operation succeeded%s"
                % (GREEN, NORMAL)))
@@ -483,10 +483,10 @@ def runinall():
         global CONTAINERNAME
         CONTAINERNAME = container.replace(CONTAINER_PATH, "").rstrip("/config")
         if lxc.Container(CONTAINERNAME).state.swapcase() == "running":
-            print (_(" * Executing %s in %s..." % (' '.join(args.command),
+            print (_(" * Executing %s in %s..." % (' '.join(ARGS.command),
                      CONTAINERNAME)))
             return_code = subprocess.call("ssh %s %s"
-                          (CONTAINERNAME, ' '.join(args.command)), shell=True)
+                          (CONTAINERNAME, ' '.join(ARGS.command)), shell=True)
             if not return_code == 0:
                 print (_("    %swarning:%s last exit code in container: %s"
                          % (YELLOW, NORMAL, return_code)))
@@ -571,10 +571,10 @@ def update_sshkeys():
 
 def execute():
     """Execute a command in a container via SSH"""
-    print (_(" * Executing '%s' in %s..." % (' '.join(args.command),
+    print (_(" * Executing '%s' in %s..." % (' '.join(ARGS.command),
                                              CONTAINERNAME)))
     return_code = subprocess.call("ssh %s %s"
-                       % (CONTAINERNAME, ' '.join(args.command)), shell=True)
+                       % (CONTAINERNAME, ' '.join(ARGS.command)), shell=True)
     if not return_code == 0:
         print (_("    %swarning:%s last exit code in container: %s"
                % (YELLOW, NORMAL, return_code)))
@@ -598,10 +598,10 @@ def enter():
 def checkconfig():
     """Prints any information we can provide on the LXC Host system"""
 
-    if not args.configpath:
+    if not ARGS.configpath:
         configpath = "/boot/config-" + KERNEL_VERSION
     else:
-        configpath = args.configpath
+        configpath = ARGS.configpath
 
     if not os.path.exists(configpath):
         print ("   %serror 404:%s the kernel config could not be found, "
@@ -912,16 +912,16 @@ SP_CONSOLE.set_defaults(function=console)
 SP_CONSOLE.add_argument('CONTAINERNAME', type=str,
                         help="Name of the container to attach console")
 
-args = PARSER.parse_args()
+ARGS = PARSER.parse_args()
 
 try:
-    CONTAINERNAME = args.CONTAINERNAME
+    CONTAINERNAME = ARGS.CONTAINERNAME
 except AttributeError:
     pass
 
 # Run functions
 try:
-    args.function()
+    ARGS.function()
 except KeyboardInterrupt:
     print (_("\n   %sinfo:%s Aborting operation, at your request"
              % (CYAN, NORMAL)))
