@@ -301,7 +301,8 @@ def freeze():
             print (_("    %scontainer successfully frozen%s"
                    % (GREEN, NORMAL)))
         else:
-            print (_("    %sERROR:%s Something went wrong, please check status."
+            print (_("    %sERROR:%s Something went wrong,"
+                     " please check status."
                    % (RED, NORMAL)))
     else:
         print (_("   %sERROR:%s The container state is %s,\n"
@@ -611,8 +612,8 @@ def checkconfig():
     kernelconfig = open(configpath, 'r').read()
 
     def confcheck(configkey):
-        """Checks whether a kernel module has been enabled as a built-in"""
-        """or a module"""
+        """Checks whether a kernel module has been enabled as a built-in
+        or a module"""
         if configkey + "=y" or configkey + "=m" in kernelconfig:
             return GREEN + "enabled" + NORMAL
         else:
@@ -772,146 +773,146 @@ def is_path_on_btrfs(path):
 
 # Argument parsing
 
-parser = argparse.ArgumentParser(
+PARSER = argparse.ArgumentParser(
          description=_("LLXC Linux Container Management"),
          formatter_class=argparse.RawTextHelpFormatter)
 
 # Optional arguements
 
-parser.add_argument("-if", "--interface", type=str, default="eth0",
+PARSER.add_argument("-if", "--interface", type=str, default="eth0",
                      help=_("Ethernet Interface, eg: eth0, eth1"))
-parser.add_argument("-ip", "--ipstack", type=str, default="ipv4",
+PARSER.add_argument("-ip", "--ipstack", type=str, default="ipv4",
                      help=_("Network IP to list, ex: ipv4, ipv6"))
 
-sp = parser.add_subparsers(help=_('sub command help'))
+SP = PARSER.add_subparsers(help=_('sub command help'))
 
-sp_create = sp.add_parser('create', help=_('Create a container'))
-sp_create.add_argument('containername', type=str,
+SP_CREATE = SP.add_parser('create', help=_('Create a container'))
+SP_CREATE.add_argument('containername', type=str,
                         help=_('name of the container'))
-sp_create.set_defaults(function=create)
+SP_CREATE.set_defaults(function=create)
 
-sp_destroy = sp.add_parser('destroy', help='Destroy a container')
-sp_destroy.add_argument('containername', type=str,
+SP_DESTROY = SP.add_parser('destroy', help='Destroy a container')
+SP_DESTROY.add_argument('containername', type=str,
                          help='name of the container')
-sp_destroy.set_defaults(function=destroy)
+SP_DESTROY.set_defaults(function=destroy)
 
-sp_status = sp.add_parser('status', help='Display container status')
-sp_status.add_argument('containername', type=str,
+SP_STATUS = SP.add_parser('status', help='Display container status')
+SP_STATUS.add_argument('containername', type=str,
                         help='Name of the container')
-sp_status.set_defaults(function=status)
+SP_STATUS.set_defaults(function=status)
 
-sp_stop = sp.add_parser('stop', help='Not used')
-sp_stop.add_argument('containername', type=str,
+SP_STOP = SP.add_parser('stop', help='Not used')
+SP_STOP.add_argument('containername', type=str,
                       help='Name of the container')
-sp_stop.set_defaults(function=stop)
+SP_STOP.set_defaults(function=stop)
 
-sp_start = sp.add_parser('start', help='Starts a container')
-sp_start.add_argument('containername', type=str,
+SP_START = SP.add_parser('start', help='Starts a container')
+SP_START.add_argument('containername', type=str,
                        help='Name of the container')
-sp_start.set_defaults(function=start)
+SP_START.set_defaults(function=start)
 
-sp_kill = sp.add_parser('kill', help='Kills a container')
-sp_kill.add_argument('containername', type=str,
+SP_KILL = SP.add_parser('kill', help='Kills a container')
+SP_KILL.add_argument('containername', type=str,
                       help='Name of the container to be killed')
-sp_kill.set_defaults(function=kill)
+SP_KILL.set_defaults(function=kill)
 
-sp_halt = sp.add_parser('halt', help='Shuts down a container')
-sp_halt.add_argument('containername', type=str,
+SP_HALT = SP.add_parser('halt', help='Shuts down a container')
+SP_HALT.add_argument('containername', type=str,
                           help='Name of the container')
-sp_halt.set_defaults(function=halt)
+SP_HALT.set_defaults(function=halt)
 
-sp_toggleautostart = sp.add_parser('toggleautostart',
+SP_TOGGLEAUTOSTART = SP.add_parser('toggleautostart',
     help='Toggles the state of starting up on boot time for a container')
-sp_toggleautostart.add_argument('containername', type=str,
+SP_TOGGLEAUTOSTART.add_argument('containername', type=str,
                                     help='Name of the container')
-sp_toggleautostart.set_defaults(function=toggleautostart)
+SP_TOGGLEAUTOSTART.set_defaults(function=toggleautostart)
 
-sp_freeze = sp.add_parser('freeze', help='Freezes a container')
-sp_freeze.add_argument('containername', type=str,
+SP_FREEZE = SP.add_parser('freeze', help='Freezes a container')
+SP_FREEZE.add_argument('containername', type=str,
                           help='Name of the container')
-sp_freeze.set_defaults(function=freeze)
+SP_FREEZE.set_defaults(function=freeze)
 
-sp_unfreeze = sp.add_parser('unfreeze', help='Unfreezes a container')
-sp_unfreeze.add_argument('containername', type=str,
+SP_UNFREEZE = SP.add_parser('unfreeze', help='Unfreezes a container')
+SP_UNFREEZE.add_argument('containername', type=str,
                           help='Name of the container')
-sp_unfreeze.set_defaults(function=unfreeze)
+SP_UNFREEZE.set_defaults(function=unfreeze)
 
-sp_list = sp.add_parser('list', help='Displays a list of containers')
-sp_list.set_defaults(function=listing)
+SP_LIST = SP.add_parser('list', help='Displays a list of containers')
+SP_LIST.set_defaults(function=listing)
 
-sp_clone = sp.add_parser('clone', help='Clone a container into a new one')
-sp_clone.add_argument('containername', type=str,
+SP_CLONE = SP.add_parser('clone', help='Clone a container into a new one')
+SP_CLONE.add_argument('containername', type=str,
                        help='Name of the container to be cloned')
-sp_clone.add_argument('newcontainername', type=str,
+SP_CLONE.add_argument('newcontainername', type=str,
                        help='Name of the new container to be created')
-sp_clone.set_defaults(function=clone)
+SP_CLONE.set_defaults(function=clone)
 
-sp_archive = sp.add_parser('archive', help='Archive a container')
-sp_archive.add_argument('containername', type=str,
+SP_ARCHIVE = SP.add_parser('archive', help='Archive a container')
+SP_ARCHIVE.add_argument('containername', type=str,
                         help="Name of the container to be archived")
-sp_archive.set_defaults(function=archive)
+SP_ARCHIVE.set_defaults(function=archive)
 
-sp_unarchive = sp.add_parser('unarchive', help='Unarchive a container')
-sp_unarchive.add_argument('containername', type=str,
+SP_UNARCHIVE = SP.add_parser('unarchive', help='Unarchive a container')
+SP_UNARCHIVE.add_argument('containername', type=str,
                         help="Name of the container to be unarchived")
-sp_unarchive.set_defaults(function=unarchive)
+SP_UNARCHIVE.set_defaults(function=unarchive)
 
-sp_startall = sp.add_parser('startall', help='Start all stopped containers')
-sp_startall.set_defaults(function=startall)
+SP_STARTALL = SP.add_parser('startall', help='Start all stopped containers')
+SP_STARTALL.set_defaults(function=startall)
 
-sp_haltall = sp.add_parser('haltall', help='Halt all started containers')
-sp_haltall.set_defaults(function=haltall)
+SP_HALTALL = SP.add_parser('haltall', help='Halt all started containers')
+SP_HALTALL.set_defaults(function=haltall)
 
-sp_killall = sp.add_parser('killall', help='Kill all started containers')
-sp_killall.set_defaults(function=killall)
+SP_KILLALL = SP.add_parser('killall', help='Kill all started containers')
+SP_KILLALL.set_defaults(function=killall)
 
-sp_gensshkeys = sp.add_parser('gensshkeys', help='Generates new SSH keypair')
-sp_gensshkeys.set_defaults(function=gen_sshkeys)
+SP_GENSSHKEYS = SP.add_parser('gensshkeys', help='Generates new SSH keypair')
+SP_GENSSHKEYS.set_defaults(function=gen_sshkeys)
 
-sp_listarchive = sp.add_parser('listarchive', help='List archived containers')
-sp_listarchive.set_defaults(function=listarchive)
+SP_LISTARCHIVE = SP.add_parser('listarchive', help='List archived containers')
+SP_LISTARCHIVE.set_defaults(function=listarchive)
 
-sp_updatesshkeys = sp.add_parser('updatesshkeys', help='Update SSH public'
+SP_UPDATESSHKEYS = SP.add_parser('updatesshkeys', help='Update SSH public'
                                  'keys in containers')
-sp_updatesshkeys.set_defaults(function=update_sshkeys)
+SP_UPDATESSHKEYS.set_defaults(function=update_sshkeys)
 
-sp_exec = sp.add_parser('exec', help='Execute a command in container via SSH')
-sp_exec.add_argument('containername', type=str,
+SP_EXEC = SP.add_parser('exec', help='Execute a command in container via SSH')
+SP_EXEC.add_argument('containername', type=str,
                         help="Name of the container to execute command in")
-sp_exec.add_argument('command', metavar='CMD', type=str, nargs='*',
+SP_EXEC.add_argument('command', metavar='CMD', type=str, nargs='*',
                         help="Command to be executed")
-sp_exec.set_defaults(function=execute)
+SP_EXEC.set_defaults(function=execute)
 
-sp_enter = sp.add_parser('enter', help='Log in to a container via SSH')
-sp_enter.add_argument('containername', type=str,
+SP_ENTER = SP.add_parser('enter', help='Log in to a container via SSH')
+SP_ENTER.add_argument('containername', type=str,
                         help="Name of the container to enter")
-sp_enter.set_defaults(function=enter)
+SP_ENTER.set_defaults(function=enter)
 
-sp_checkconfig = sp.add_parser('checkconfig',
+SP_CHECKCONFIG = SP.add_parser('checkconfig',
                                help='Print available checkconfig information')
-sp_checkconfig.set_defaults(function=checkconfig)
-sp_checkconfig.add_argument('configpath', type=str,
+SP_CHECKCONFIG.set_defaults(function=checkconfig)
+SP_CHECKCONFIG.add_argument('configpath', type=str,
                             help="Name of kernel config to check")
 
-sp_runinall = sp.add_parser('runinall',
+SP_RUNINALL = SP.add_parser('runinall',
                             help='Run command in all containers')
-sp_runinall.set_defaults(function=runinall)
-sp_runinall.add_argument('command', metavar='CMD', type=str, nargs='*',
+SP_RUNINALL.set_defaults(function=runinall)
+SP_RUNINALL.add_argument('command', metavar='CMD', type=str, nargs='*',
                          help="Command to be executed")
 
-sp_printconfig = sp.add_parser('printconfig',
+SP_PRINTCONFIG = SP.add_parser('printconfig',
                                help='Print LXC container configuration')
-sp_printconfig.set_defaults(function=printconfig)
-sp_printconfig.add_argument('containername', type=str,
+SP_PRINTCONFIG.set_defaults(function=printconfig)
+SP_PRINTCONFIG.add_argument('containername', type=str,
                             help="Name of the container to attach console")
 
-sp_console = sp.add_parser('console',
+SP_CONSOLE = SP.add_parser('console',
                            help='Enter LXC Console')
-sp_console.set_defaults(function=console)
-sp_console.add_argument('containername', type=str,
+SP_CONSOLE.set_defaults(function=console)
+SP_CONSOLE.add_argument('containername', type=str,
                         help="Name of the container to attach console")
 
-args = parser.parse_args()
+args = PARSER.parse_args()
 
 try:
     containername = args.containername
