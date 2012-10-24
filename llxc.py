@@ -80,7 +80,7 @@ def listing():
     print (_("%s   NAME \tTASKS \t   STATUS \tIP_ADDR_%s%s"
            % (CYAN, ARGS.interface.swapcase(), NORMAL)))
     for container in glob.glob(CONTAINER_PATH + '*/config'):
-        CONTAINERNAME = container.replace(CONTAINER_PATH, "").rstrip("/config")
+        containername = container.replace(CONTAINER_PATH, "").rstrip("/config")
         cont = lxc.Container(CONTAINERNAME)
         try:
             ipaddress = cont.get_ips(protocol="ipv4",
@@ -92,10 +92,10 @@ def listing():
             ipaddress = "Unavailable"
         try:
             tasks = sum(1 for line in open(CGROUP_PATH + "cpuset/lxc/" +
-                        CONTAINERNAME + "/tasks", 'r'))
+                        containername + "/tasks", 'r'))
         except IOError:
             tasks = "00"
-        print (_("   %s \t %s \t   %s \t%s" % (CONTAINERNAME, tasks,
+        print (_("   %s \t %s \t   %s \t%s" % (containername, tasks,
                cont.state.swapcase(), ipaddress)))
 
 
@@ -104,12 +104,12 @@ def listarchive():
     print (_("    %sNAME \tSIZE \t     DATE%s" % (CYAN, NORMAL)))
     try:
         for container in glob.glob(ARCHIVE_PATH + '*tar.gz'):
-            CONTAINERNAME = container.replace(ARCHIVE_PATH,
+            containername = container.replace(ARCHIVE_PATH,
                                               "").rstrip(".tar.gz")
             containersize = os.path.getsize(container)
             containerdate = time.ctime(os.path.getctime(container))
             print (_("    %s \t%.0f MiB\t     %s")
-                   % (CONTAINERNAME, containersize / 1000 / 1000,
+                   % (containername, containersize / 1000 / 1000,
                       containerdate))
     except IOError:
         print (_("    Error: Confirm that the archive directory exists"
