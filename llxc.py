@@ -235,7 +235,8 @@ def status():
               IPv6 eth0 Address:  %s
                     MAC Address:  %s
                          Bridge:  %s
-""" % (network_configurations, ip4address, ip6address, macaddress, network_bridge))
+""" % (network_configurations, ip4address, ip6address, macaddress,
+       network_bridge))
 
     print (_(CYAN + "    Tip: " + NORMAL +
            "'llxc status' is experimental and subject to behavioural change"))
@@ -300,7 +301,7 @@ def freeze():
             print (_("    %scontainer successfully frozen%s"
                    % (GREEN, NORMAL)))
         else:
-            print (_("    %ERROR:% Something went wrong, please check status."
+            print (_("    %sERROR:%s Something went wrong, please check status."
                    % (RED, NORMAL)))
     else:
         print (_("   %sERROR:%s The container state is %s,\n"
@@ -610,12 +611,15 @@ def checkconfig():
     kernelconfig = open(configpath, 'r').read()
 
     def confcheck(configkey):
+        """Checks whether a kernel module has been enabled as a built-in"""
+        """or a module"""
         if configkey + "=y" or configkey + "=m" in kernelconfig:
             return GREEN + "enabled" + NORMAL
         else:
             return RED + "disabled" + NORMAL
 
     def cgroupcheck(path):
+        """Checks whether a CGROUP path exists"""
         if os.path.exists(CGROUP_PATH + path):
             return GREEN + "enabled" + NORMAL
         else:
