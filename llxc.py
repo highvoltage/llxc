@@ -267,7 +267,7 @@ def stop():
            % (CYAN, NORMAL)))
 
 
-def start():
+def start(CONTAINERNAME):
     """Start LXC Container"""
     requires_root()
     print (_(" * Starting %s..." % (CONTAINERNAME)))
@@ -279,7 +279,7 @@ def start():
                % (GREEN, CONTAINERNAME, NORMAL)))
 
 
-def halt():
+def halt(CONTAINERNAME):
     "Shut Down LXC Container"""
     requires_root()
     print (_(" * Shutting down %s..." % (CONTAINERNAME)))
@@ -470,10 +470,9 @@ def startall():
     requires_root()
     print (_(" * Starting all stopped containers:"))
     for container in glob.glob(CONTAINER_PATH + '*/config'):
-        global CONTAINERNAME
         CONTAINERNAME = container.replace(CONTAINER_PATH, "").rstrip("/config")
         if lxc.Container(CONTAINERNAME).state.swapcase() == "stopped":
-            start()
+            start(CONTAINERNAME)
 
 
 def runinall():
@@ -501,20 +500,18 @@ def haltall():
     requires_root()
     print (_(" * Halting all containers:"))
     for container in glob.glob(CONTAINER_PATH + '*/config'):
-        global CONTAINERNAME
         CONTAINERNAME = container.replace(CONTAINER_PATH, "").rstrip("/config")
         if lxc.Container(CONTAINERNAME).state.swapcase() == "running":
-            halt()
+            halt(CONTAINERNAME)
 
 
 def killall():
     """Kill all LXC containers"""
     print (_(" * Killing all running containers:"))
     for container in glob.glob(CONTAINER_PATH + '*/config'):
-        global CONTAINERNAME
         CONTAINERNAME = container.replace(CONTAINER_PATH, "").rstrip("/config")
         if lxc.Container(CONTAINERNAME).state.swapcase() == "running":
-            kill()
+            kill(CONTAINERNAME)
 
 
 def gen_sshkeys():
@@ -819,7 +816,7 @@ SP_KILL.set_defaults(function=kill)
 SP_HALT = SP.add_parser('halt', help='Shuts down a container')
 SP_HALT.add_argument('CONTAINERNAME', type=str,
                           help='Name of the container')
-SP_HALT.set_defaults(function=halt)
+SP_HALT.set_defaults(function=halt(CONTAINERNAME))
 
 SP_TOGGLEAUTOSTART = SP.add_parser('toggleautostart',
     help='Toggles the state of starting up on boot time for a container')
