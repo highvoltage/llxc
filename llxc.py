@@ -81,7 +81,7 @@ def listing():
            % (CYAN, ARGS.interface.swapcase(), NORMAL)))
     for container in glob.glob(CONTAINER_PATH + '*/config'):
         containername = container.replace(CONTAINER_PATH, "").rstrip("/config")
-        cont = lxc.Container(CONTAINERNAME)
+        cont = lxc.Container(containername)
         try:
             ipaddress = cont.get_ips(protocol="ipv4",
                                      interface="eth0", timeout=0.5)

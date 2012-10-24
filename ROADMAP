@@ -49,11 +49,11 @@ future versions.
 
 0.4 - Future Release
  * [ ] make llxc work with cgroups from debian again
- * [ ] btrfs filesystem awareness
+ * [x] btrfs filesystem awareness
  * [ ] Basic awareness of other hosts
  * [ ] Split functions off of llxc script
- * [ ] configuration profiles awareness for puppet
- * [ ] configuration profiles awareness for bcfg2
+ * [ ] configuration profile awareness for puppet
+ * [ ] configuration profile awareness for bcfg2
  * [ ] more hooks... everywhere
  * [ ] hidden containers
  * [ ] wait on a container
