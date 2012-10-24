@@ -80,8 +80,8 @@ def listing():
     print (_("%s   NAME \tTASKS \t   STATUS \tIP_ADDR_%s%s"
            % (CYAN, args.interface.swapcase(), NORMAL)))
     for container in glob.glob(CONTAINER_PATH + '*/config'):
-        containername = container.replace(CONTAINER_PATH, "").rstrip("/config")
-        cont = lxc.Container(containername)
+        CONTAINERNAME = container.replace(CONTAINER_PATH, "").rstrip("/config")
+        cont = lxc.Container(CONTAINERNAME)
         try:
             ipaddress = cont.get_ips(protocol="ipv4",
                                      interface="eth0", timeout=0.5)
@@ -92,10 +92,10 @@ def listing():
             ipaddress = "Unavailable"
         try:
             tasks = sum(1 for line in open(CGROUP_PATH + "cpuset/lxc/" +
-                        containername + "/tasks", 'r'))
+                        CONTAINERNAME + "/tasks", 'r'))
         except IOError:
             tasks = "00"
-        print (_("   %s \t %s \t   %s \t%s" % (containername, tasks,
+        print (_("   %s \t %s \t   %s \t%s" % (CONTAINERNAME, tasks,
                cont.state.swapcase(), ipaddress)))
 
 
@@ -104,12 +104,12 @@ def listarchive():
     print (_("    %sNAME \tSIZE \t     DATE%s" % (CYAN, NORMAL)))
     try:
         for container in glob.glob(ARCHIVE_PATH + '*tar.gz'):
-            containername = container.replace(ARCHIVE_PATH,
+            CONTAINERNAME = container.replace(ARCHIVE_PATH,
                                               "").rstrip(".tar.gz")
             containersize = os.path.getsize(container)
             containerdate = time.ctime(os.path.getctime(container))
             print (_("    %s \t%.0f MiB\t     %s")
-                   % (containername, containersize / 1000 / 1000,
+                   % (CONTAINERNAME, containersize / 1000 / 1000,
                       containerdate))
     except IOError:
         print (_("    Error: Confirm that the archive directory exists"
@@ -120,12 +120,12 @@ def status():
     """Prints a status report for specified container"""
     requires_container_existance()
 
-    cont = lxc.Container(containername)
+    cont = lxc.Container(CONTAINERNAME)
 
     # System Stuff:
-    state = lxc.Container(containername).state.swapcase()
+    state = lxc.Container(CONTAINERNAME).state.swapcase()
 
-    if os.path.lexists(AUTOSTART_PATH + containername):
+    if os.path.lexists(AUTOSTART_PATH + CONTAINERNAME):
         autostart = "enabled"
     else:
         autostart = "disabled"
@@ -136,26 +136,26 @@ def status():
 
     try:
         tasks = sum(1 for line in open(CGROUP_PATH + "cpuset/lxc/" +
-                    containername + "/tasks", 'r'))
+                    CONTAINERNAME + "/tasks", 'r'))
     except IOError:
         tasks = 0
 
-    init_pid = lxc.Container(containername).init_pid
+    init_pid = lxc.Container(CONTAINERNAME).init_pid
 
-    config_file = lxc.Container(containername).config_file_name
+    config_file = lxc.Container(CONTAINERNAME).config_file_name
 
     console_tty = cont.get_config_item('lxc.tty')
 
     # Memory Stuff:
     for line in open(CGROUP_PATH + "memory/lxc/" +
-                     containername + "/memory.stat", 'r'):
+                     CONTAINERNAME + "/memory.stat", 'r'):
         if "total_swap" in line:
             swap_usage = (int(line.replace('total_swap ', '')) / 1000 / 1000)
 
-    swappiness = open(CGROUP_PATH + "memory/lxc/" + containername +
+    swappiness = open(CGROUP_PATH + "memory/lxc/" + CONTAINERNAME +
                       "/memory.swappiness", 'r').read()
 
-    memusage = int(open(CGROUP_PATH + "memory/lxc/" + containername +
+    memusage = int(open(CGROUP_PATH + "memory/lxc/" + CONTAINERNAME +
                    "/memory.memsw.usage_in_bytes", 'r').read()) / 1000 / 1000
 
     # Currently Unsorted:
@@ -164,10 +164,10 @@ def status():
     lxc.tty = cont.get_config_item('lxc.tty')
     root_fs = cont.get_config_item('lxc.rootfs')
     cpu_set = open(CGROUP_PATH + "cpuset/lxc/" +
-                   containername + "/cpuset.cpus", 'r').read()
+                   CONTAINERNAME + "/cpuset.cpus", 'r').read()
 
     print (_(CYAN + """\
-    Status report for container:  """ + containername + NORMAL + """
+    Status report for container:  """ + CONTAINERNAME + NORMAL + """
                          SYSTEM:
                     LXC Version:  %s\
                        LXC Host:  %s\
@@ -245,12 +245,12 @@ def status():
 def kill():
     """Force stop LXC container"""
     requires_root()
-    print (_(" * Killing %s..." % (containername)))
+    print (_(" * Killing %s..." % (CONTAINERNAME)))
     requires_container_existance()
-    cont = lxc.Container(containername)
+    cont = lxc.Container(CONTAINERNAME)
     if cont.stop():
         print (_("   %s%s sucessfully killed%s"
-               % (GREEN, containername, NORMAL)))
+               % (GREEN, CONTAINERNAME, NORMAL)))
 
 
 def stop():
@@ -270,33 +270,33 @@ def stop():
 def start():
     """Start LXC Container"""
     requires_root()
-    print (_(" * Starting %s..." % (containername)))
+    print (_(" * Starting %s..." % (CONTAINERNAME)))
     requires_network_bridge()
     requires_container_existance()
-    cont = lxc.Container(containername)
+    cont = lxc.Container(CONTAINERNAME)
     if cont.start():
         print (_("   %s%s sucessfully started%s"
-               % (GREEN, containername, NORMAL)))
+               % (GREEN, CONTAINERNAME, NORMAL)))
 
 
 def halt():
     "Shut Down LXC Container"""
     requires_root()
-    print (_(" * Shutting down %s..." % (containername)))
+    print (_(" * Shutting down %s..." % (CONTAINERNAME)))
     requires_container_existance()
-    cont = lxc.Container(containername)
+    cont = lxc.Container(CONTAINERNAME)
     if cont.shutdown():
         print (_("   %s%s successfully shut down%s"
-               % (GREEN, containername, NORMAL)))
+               % (GREEN, CONTAINERNAME, NORMAL)))
 
 
 def freeze():
     """Freeze LXC Container"""
     requires_root()
     requires_container_existance()
-    if lxc.Container(containername).state == "RUNNING":
-        print (_(" * Freezing container: %s..." % (containername)))
-        cont = lxc.Container(containername)
+    if lxc.Container(CONTAINERNAME).state == "RUNNING":
+        print (_(" * Freezing container: %s..." % (CONTAINERNAME)))
+        cont = lxc.Container(CONTAINERNAME)
         if cont.freeze():
             print (_("    %scontainer successfully frozen%s"
                    % (GREEN, NORMAL)))
@@ -308,16 +308,16 @@ def freeze():
         print (_("   %sERROR:%s The container state is %s,\n"
                "          it needs to be in the 'RUNNING'"
                " state in order to be frozen."
-                % (RED, NORMAL, lxc.Container(containername).state)))
+                % (RED, NORMAL, lxc.Container(CONTAINERNAME).state)))
 
 
 def unfreeze():
     """Unfreeze LXC Container"""
     requires_root()
     requires_container_existance()
-    if lxc.Container(containername).state == "FROZEN":
-        print (_(" * Unfreezing container: %s..." % (containername)))
-        cont = lxc.Container(containername)
+    if lxc.Container(CONTAINERNAME).state == "FROZEN":
+        print (_(" * Unfreezing container: %s..." % (CONTAINERNAME)))
+        cont = lxc.Container(CONTAINERNAME)
         if cont.unfreeze():
             print (_("    %scontainer successfully unfrozen%s"
                    % (GREEN, NORMAL)))
@@ -329,34 +329,34 @@ def unfreeze():
         print (_("   %sERROR:%s The container state is %s,\n"
                "   it needs to be in the 'FROZEN' state in"
                "order to be unfrozen."
-                % (RED, NORMAL, lxc.Container(containername).state)))
+                % (RED, NORMAL, lxc.Container(CONTAINERNAME).state)))
 
 
 def toggleautostart():
     """Toggle autostart of LXC Container"""
     requires_root()
     requires_container_existance()
-    if os.path.lexists(AUTOSTART_PATH + containername):
+    if os.path.lexists(AUTOSTART_PATH + CONTAINERNAME):
         print (_("   %saction:%s disabling autostart for %s..."
-               % (GREEN, NORMAL, containername)))
-        os.unlink(AUTOSTART_PATH + containername)
+               % (GREEN, NORMAL, CONTAINERNAME)))
+        os.unlink(AUTOSTART_PATH + CONTAINERNAME)
     else:
         print (_("   %saction:%s enabling autostart for %s..."
-               % (GREEN, NORMAL, containername)))
-        os.symlink(CONTAINER_PATH + containername,
-                   AUTOSTART_PATH + containername)
+               % (GREEN, NORMAL, CONTAINERNAME)))
+        os.symlink(CONTAINER_PATH + CONTAINERNAME,
+                   AUTOSTART_PATH + CONTAINERNAME)
 
 
 def create():
     """Create LXC Container"""
     requires_root()
-    print (_(" * Creating container: %s..." % (containername)))
+    print (_(" * Creating container: %s..." % (CONTAINERNAME)))
     requires_container_nonexistance()
     requires_free_disk_space()
-    cont = lxc.Container(containername)
+    cont = lxc.Container(CONTAINERNAME)
     if cont.create('ubuntu'):
         print (_("   %scontainer %s successfully created%s"
-               % (GREEN, containername, NORMAL)))
+               % (GREEN, CONTAINERNAME, NORMAL)))
     else:
         print (_("   %sERROR:%s Something went wrong, please check status"
                % (RED, NORMAL)))
@@ -369,17 +369,17 @@ def destroy():
     """Destroy LXC Container"""
     requires_root()
     requires_container_existance()
-    if lxc.Container(containername).state == "RUNNING":
+    if lxc.Container(CONTAINERNAME).state == "RUNNING":
         print (_(" * %sWARNING:%s Container is running, stopping before"
                " destroying in 10 seconds..."
                % (YELLOW, NORMAL)))
         time.sleep(10)
         kill()
-    print (_(" * Destroying container " + containername + "..."))
-    cont = lxc.Container(containername)
+    print (_(" * Destroying container " + CONTAINERNAME + "..."))
+    cont = lxc.Container(CONTAINERNAME)
     if cont.destroy():
         print (_("   %s%s successfully destroyed %s"
-               % (GREEN, containername, NORMAL)))
+               % (GREEN, CONTAINERNAME, NORMAL)))
     else:
         print (_("   %sERROR:%s Something went wrong, please check status"
                % (RED, NORMAL)))
@@ -388,19 +388,19 @@ def destroy():
 def clone():
     """Clone LXC container"""
     requires_root()
-    origcont = lxc.Container(containername)
+    origcont = lxc.Container(CONTAINERNAME)
     if not origcont.defined:
         print ("   %serror 404:%s container %s does not exist"
-               % (RED, NORMAL, containername))
+               % (RED, NORMAL, CONTAINERNAME))
         sys.exit(404)
-    cont = lxc.Container(args.newcontainername)
+    cont = lxc.Container(args.newCONTAINERNAME)
     if cont.defined:
         print ("   %serror:%s container %s already exists"
-               % (RED, NORMAL, args.containername))
+               % (RED, NORMAL, args.CONTAINERNAME))
         sys.exit(1)
     print (_(" * Cloning %s in to %s..."
-           % (containername, args.newcontainername)))
-    if cont.clone(containername):
+           % (CONTAINERNAME, args.newCONTAINERNAME)))
+    if cont.clone(CONTAINERNAME):
         print (_("   %scloning operation succeeded%s"
                % (GREEN, NORMAL)))
     else:
@@ -416,47 +416,47 @@ def archive():
     requires_root()
     requires_container_existance()
     halt()
-    print (_(" * Archiving container: %s..." % (containername)))
+    print (_(" * Archiving container: %s..." % (CONTAINERNAME)))
     previous_path = os.getcwd()
     os.chdir(CONTAINER_PATH)
-    tar = tarfile.open(ARCHIVE_PATH + containername + ".tar.gz", "w:gz")
-    tar.add(containername)
+    tar = tarfile.open(ARCHIVE_PATH + CONTAINERNAME + ".tar.gz", "w:gz")
+    tar.add(CONTAINERNAME)
     tar.close
     os.chdir(previous_path)
     print (_("   %scontainer archived in to %s%s.tar.gz%s"
-           % (GREEN, CONTAINER_PATH, containername, NORMAL)))
+           % (GREEN, CONTAINER_PATH, CONTAINERNAME, NORMAL)))
     print (_(" * Removing container path %s..."
-           % (CONTAINER_PATH + containername)))
-    if is_path_on_btrfs(CONTAINER_PATH + containername):
+           % (CONTAINER_PATH + CONTAINERNAME)))
+    if is_path_on_btrfs(CONTAINER_PATH + CONTAINERNAME):
         print (_("   container is on btrfs, removing subvolume..."))
-        os.popen("btrfs subvolume delete " + containername + "/rootfs")
+        os.popen("btrfs subvolume delete " + CONTAINERNAME + "/rootfs")
         # Stupid race conditions. There's a delay
         time.sleep(0.5)
-    if os.path.isdir(CONTAINER_PATH + containername):
-        shutil.rmtree(CONTAINER_PATH + containername)
-    if os.path.lexists(AUTOSTART_PATH + containername):
+    if os.path.isdir(CONTAINER_PATH + CONTAINERNAME):
+        shutil.rmtree(CONTAINER_PATH + CONTAINERNAME)
+    if os.path.lexists(AUTOSTART_PATH + CONTAINERNAME):
         print (_(" * Autostart was enabled for this container, disabling..."))
-        os.remove(AUTOSTART_PATH + containername)
+        os.remove(AUTOSTART_PATH + CONTAINERNAME)
     print (_("   %sarchiving operation complete%s"
            % (GREEN, NORMAL)))
 
 
 def unarchive():
     """Unarchive LXC container"""
-    print (_(" * Unarchiving container: %s..." % (containername)))
-    cont = lxc.Container(containername)
+    print (_(" * Unarchiving container: %s..." % (CONTAINERNAME)))
+    cont = lxc.Container(CONTAINERNAME)
     if cont.defined:
         print ("   %serror:%s a container by name %s already exists unarchived"
-               % (RED, NORMAL, containername))
+               % (RED, NORMAL, CONTAINERNAME))
         exit(1)
     requires_container_nonexistance()
     # If we're on btrfs we should create a subvolume
     if is_path_on_btrfs(CONTAINER_PATH):
         print ("   container path is on btrfs, creating subvolume...")
-        os.popen("btrfs subvolume create " + containername)
+        os.popen("btrfs subvolume create " + CONTAINERNAME)
     previous_path = os.getcwd()
     os.chdir(CONTAINER_PATH)
-    tar = tarfile.open(ARCHIVE_PATH + containername + ".tar.gz", "r:gz")
+    tar = tarfile.open(ARCHIVE_PATH + CONTAINERNAME + ".tar.gz", "r:gz")
     tar.extractall()
     os.chdir(previous_path)
     print (_("   %stip:%s archive file not removed, container not started,\n"
@@ -470,9 +470,9 @@ def startall():
     requires_root()
     print (_(" * Starting all stopped containers:"))
     for container in glob.glob(CONTAINER_PATH + '*/config'):
-        global containername
-        containername = container.replace(CONTAINER_PATH, "").rstrip("/config")
-        if lxc.Container(containername).state.swapcase() == "stopped":
+        global CONTAINERNAME
+        CONTAINERNAME = container.replace(CONTAINER_PATH, "").rstrip("/config")
+        if lxc.Container(CONTAINERNAME).state.swapcase() == "stopped":
             start()
 
 
@@ -480,20 +480,20 @@ def runinall():
     """Runs a command in all containers"""
     requires_root()
     for container in glob.glob(CONTAINER_PATH + '*/config'):
-        global containername
-        containername = container.replace(CONTAINER_PATH, "").rstrip("/config")
-        if lxc.Container(containername).state.swapcase() == "running":
+        global CONTAINERNAME
+        CONTAINERNAME = container.replace(CONTAINER_PATH, "").rstrip("/config")
+        if lxc.Container(CONTAINERNAME).state.swapcase() == "running":
             print (_(" * Executing %s in %s..." % (' '.join(args.command),
-                     containername)))
+                     CONTAINERNAME)))
             return_code = subprocess.call("ssh %s %s"
-                          (containername, ' '.join(args.command)), shell=True)
+                          (CONTAINERNAME, ' '.join(args.command)), shell=True)
             if not return_code == 0:
                 print (_("    %swarning:%s last exit code in container: %s"
                          % (YELLOW, NORMAL, return_code)))
 
         else:
             print (_(" * %sWarning:%s Container %s not running, skipped..."
-                     % (YELLOW, NORMAL, containername)))
+                     % (YELLOW, NORMAL, CONTAINERNAME)))
 
 
 def haltall():
@@ -501,9 +501,9 @@ def haltall():
     requires_root()
     print (_(" * Halting all containers:"))
     for container in glob.glob(CONTAINER_PATH + '*/config'):
-        global containername
-        containername = container.replace(CONTAINER_PATH, "").rstrip("/config")
-        if lxc.Container(containername).state.swapcase() == "running":
+        global CONTAINERNAME
+        CONTAINERNAME = container.replace(CONTAINER_PATH, "").rstrip("/config")
+        if lxc.Container(CONTAINERNAME).state.swapcase() == "running":
             halt()
 
 
@@ -511,9 +511,9 @@ def killall():
     """Kill all LXC containers"""
     print (_(" * Killing all running containers:"))
     for container in glob.glob(CONTAINER_PATH + '*/config'):
-        global containername
-        containername = container.replace(CONTAINER_PATH, "").rstrip("/config")
-        if lxc.Container(containername).state.swapcase() == "running":
+        global CONTAINERNAME
+        CONTAINERNAME = container.replace(CONTAINER_PATH, "").rstrip("/config")
+        if lxc.Container(CONTAINERNAME).state.swapcase() == "running":
             kill()
 
 
@@ -572,27 +572,27 @@ def update_sshkeys():
 def execute():
     """Execute a command in a container via SSH"""
     print (_(" * Executing '%s' in %s..." % (' '.join(args.command),
-                                             containername)))
+                                             CONTAINERNAME)))
     return_code = subprocess.call("ssh %s %s"
-                       % (containername, ' '.join(args.command)), shell=True)
+                       % (CONTAINERNAME, ' '.join(args.command)), shell=True)
     if not return_code == 0:
         print (_("    %swarning:%s last exit code in container: %s"
                % (YELLOW, NORMAL, return_code)))
     print (_("    %sexecution completed for container: %s...%s"
-           % (GREEN, containername, NORMAL)))
+           % (GREEN, CONTAINERNAME, NORMAL)))
 
 
 def enter():
     """Enter a container via SSH"""
-    print (_(" * Entering container %s..." % (containername)))
+    print (_(" * Entering container %s..." % (CONTAINERNAME)))
     return_code = subprocess.call("ssh %s -i %s"
-                  % (containername, LLXCHOME_PATH + "/ssh/container_rsa"),
+                  % (CONTAINERNAME, LLXCHOME_PATH + "/ssh/container_rsa"),
                      shell=True)
     if not return_code == 0:
         print (_("    %swarning:%s last exit code in container: %s"
                % (YELLOW, NORMAL, return_code)))
     print (_("    %sexiting container: %s...%s"
-           % (GREEN, containername, NORMAL)))
+           % (GREEN, CONTAINERNAME, NORMAL)))
 
 
 def checkconfig():
@@ -672,8 +672,8 @@ def checkconfig():
 def printconfig():
     """Prints LXC Configuration"""
     # Currently unused here:
-    #cont = lxc.Container(containername)
-    conffile = lxc.Container(containername).config_file_name
+    #cont = lxc.Container(CONTAINERNAME)
+    conffile = lxc.Container(CONTAINERNAME).config_file_name
     for line in open(conffile, 'r'):
         print (line)
 
@@ -681,10 +681,10 @@ def printconfig():
 def console():
     """Attaches to an LXC console"""
     requires_container_existance()
-    print (_(" * Entering LXC Console: %s" % (containername)))
-    cont = lxc.Container(containername)
+    print (_(" * Entering LXC Console: %s" % (CONTAINERNAME)))
+    cont = lxc.Container(CONTAINERNAME)
     if cont.console():
-        print (_("Detached from LXC console: %s" % (containername)))
+        print (_("Detached from LXC console: %s" % (CONTAINERNAME)))
     else:
         print (_("   %serror:%s please check status" % (RED, NORMAL)))
 
@@ -701,7 +701,7 @@ def requires_root():
 
 def requires_container_nonexistance():
     """Prints an error message if a container exists and exits"""
-    if os.path.exists(CONTAINER_PATH + containername):
+    if os.path.exists(CONTAINER_PATH + CONTAINERNAME):
         print (_("   %serror:%s That container already exists."
                  % (RED, NORMAL)))
         sys.exit(1)
@@ -710,7 +710,7 @@ def requires_container_nonexistance():
 def requires_network_bridge():
     """Prints an error message if container's network bridge is unavailable"""
 
-    cont = lxc.Container(containername)
+    cont = lxc.Container(CONTAINERNAME)
 
     # How many cards are configured:
     network_configurations = len(cont.network)
@@ -731,10 +731,10 @@ def requires_network_bridge():
 def requires_container_existance():
     """Checks whether specified container exists before execution."""
     try:
-        if not os.path.exists(CONTAINER_PATH + containername):
+        if not os.path.exists(CONTAINER_PATH + CONTAINERNAME):
             print (_("   %serror 404:%s That container (%s) "
                      "could not be found."
-                      % (RED, NORMAL, containername)))
+                      % (RED, NORMAL, CONTAINERNAME)))
             sys.exit(404)
     except NameError:
         print (_("   %serror 400:%s You must specify a container."
@@ -787,53 +787,53 @@ PARSER.add_argument("-ip", "--ipstack", type=str, default="ipv4",
 SP = PARSER.add_subparsers(help=_('sub command help'))
 
 SP_CREATE = SP.add_parser('create', help=_('Create a container'))
-SP_CREATE.add_argument('containername', type=str,
+SP_CREATE.add_argument('CONTAINERNAME', type=str,
                         help=_('name of the container'))
 SP_CREATE.set_defaults(function=create)
 
 SP_DESTROY = SP.add_parser('destroy', help='Destroy a container')
-SP_DESTROY.add_argument('containername', type=str,
+SP_DESTROY.add_argument('CONTAINERNAME', type=str,
                          help='name of the container')
 SP_DESTROY.set_defaults(function=destroy)
 
 SP_STATUS = SP.add_parser('status', help='Display container status')
-SP_STATUS.add_argument('containername', type=str,
+SP_STATUS.add_argument('CONTAINERNAME', type=str,
                         help='Name of the container')
 SP_STATUS.set_defaults(function=status)
 
 SP_STOP = SP.add_parser('stop', help='Not used')
-SP_STOP.add_argument('containername', type=str,
+SP_STOP.add_argument('CONTAINERNAME', type=str,
                       help='Name of the container')
 SP_STOP.set_defaults(function=stop)
 
 SP_START = SP.add_parser('start', help='Starts a container')
-SP_START.add_argument('containername', type=str,
+SP_START.add_argument('CONTAINERNAME', type=str,
                        help='Name of the container')
 SP_START.set_defaults(function=start)
 
 SP_KILL = SP.add_parser('kill', help='Kills a container')
-SP_KILL.add_argument('containername', type=str,
+SP_KILL.add_argument('CONTAINERNAME', type=str,
                       help='Name of the container to be killed')
 SP_KILL.set_defaults(function=kill)
 
 SP_HALT = SP.add_parser('halt', help='Shuts down a container')
-SP_HALT.add_argument('containername', type=str,
+SP_HALT.add_argument('CONTAINERNAME', type=str,
                           help='Name of the container')
 SP_HALT.set_defaults(function=halt)
 
 SP_TOGGLEAUTOSTART = SP.add_parser('toggleautostart',
     help='Toggles the state of starting up on boot time for a container')
-SP_TOGGLEAUTOSTART.add_argument('containername', type=str,
+SP_TOGGLEAUTOSTART.add_argument('CONTAINERNAME', type=str,
                                     help='Name of the container')
 SP_TOGGLEAUTOSTART.set_defaults(function=toggleautostart)
 
 SP_FREEZE = SP.add_parser('freeze', help='Freezes a container')
-SP_FREEZE.add_argument('containername', type=str,
+SP_FREEZE.add_argument('CONTAINERNAME', type=str,
                           help='Name of the container')
 SP_FREEZE.set_defaults(function=freeze)
 
 SP_UNFREEZE = SP.add_parser('unfreeze', help='Unfreezes a container')
-SP_UNFREEZE.add_argument('containername', type=str,
+SP_UNFREEZE.add_argument('CONTAINERNAME', type=str,
                           help='Name of the container')
 SP_UNFREEZE.set_defaults(function=unfreeze)
 
@@ -841,19 +841,19 @@ SP_LIST = SP.add_parser('list', help='Displays a list of containers')
 SP_LIST.set_defaults(function=listing)
 
 SP_CLONE = SP.add_parser('clone', help='Clone a container into a new one')
-SP_CLONE.add_argument('containername', type=str,
+SP_CLONE.add_argument('CONTAINERNAME', type=str,
                        help='Name of the container to be cloned')
-SP_CLONE.add_argument('newcontainername', type=str,
+SP_CLONE.add_argument('newCONTAINERNAME', type=str,
                        help='Name of the new container to be created')
 SP_CLONE.set_defaults(function=clone)
 
 SP_ARCHIVE = SP.add_parser('archive', help='Archive a container')
-SP_ARCHIVE.add_argument('containername', type=str,
+SP_ARCHIVE.add_argument('CONTAINERNAME', type=str,
                         help="Name of the container to be archived")
 SP_ARCHIVE.set_defaults(function=archive)
 
 SP_UNARCHIVE = SP.add_parser('unarchive', help='Unarchive a container')
-SP_UNARCHIVE.add_argument('containername', type=str,
+SP_UNARCHIVE.add_argument('CONTAINERNAME', type=str,
                         help="Name of the container to be unarchived")
 SP_UNARCHIVE.set_defaults(function=unarchive)
 
@@ -877,14 +877,14 @@ SP_UPDATESSHKEYS = SP.add_parser('updatesshkeys', help='Update SSH public'
 SP_UPDATESSHKEYS.set_defaults(function=update_sshkeys)
 
 SP_EXEC = SP.add_parser('exec', help='Execute a command in container via SSH')
-SP_EXEC.add_argument('containername', type=str,
+SP_EXEC.add_argument('CONTAINERNAME', type=str,
                         help="Name of the container to execute command in")
 SP_EXEC.add_argument('command', metavar='CMD', type=str, nargs='*',
                         help="Command to be executed")
 SP_EXEC.set_defaults(function=execute)
 
 SP_ENTER = SP.add_parser('enter', help='Log in to a container via SSH')
-SP_ENTER.add_argument('containername', type=str,
+SP_ENTER.add_argument('CONTAINERNAME', type=str,
                         help="Name of the container to enter")
 SP_ENTER.set_defaults(function=enter)
 
@@ -903,19 +903,19 @@ SP_RUNINALL.add_argument('command', metavar='CMD', type=str, nargs='*',
 SP_PRINTCONFIG = SP.add_parser('printconfig',
                                help='Print LXC container configuration')
 SP_PRINTCONFIG.set_defaults(function=printconfig)
-SP_PRINTCONFIG.add_argument('containername', type=str,
+SP_PRINTCONFIG.add_argument('CONTAINERNAME', type=str,
                             help="Name of the container to attach console")
 
 SP_CONSOLE = SP.add_parser('console',
                            help='Enter LXC Console')
 SP_CONSOLE.set_defaults(function=console)
-SP_CONSOLE.add_argument('containername', type=str,
+SP_CONSOLE.add_argument('CONTAINERNAME', type=str,
                         help="Name of the container to attach console")
 
 args = PARSER.parse_args()
 
 try:
-    containername = args.containername
+    CONTAINERNAME = args.CONTAINERNAME
 except AttributeError:
     pass
 
