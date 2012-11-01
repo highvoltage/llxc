@@ -35,6 +35,15 @@ import shutil
 import subprocess
 import warnings
 
+if os.getuid():
+    opts = os.environ.get('llxcsudo', 'allow,env').split(",")
+    if not "deny" in opts:
+        cmd = ["sudo"]
+        if "env" in opts:
+            cmd.append("-E")
+
+        sys.exit(subprocess.call(cmd + sys.argv))
+
 # For now we need to filter the warning that python3-lxc produces
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=Warning)
