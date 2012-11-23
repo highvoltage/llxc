@@ -70,7 +70,7 @@ KERNEL_VERSION = os.popen("uname -r").read().rstrip()
 # Set colours, unless llxcmono is set
 try:
     if os.environ['llxcmono']:
-        GRAY = RED = GREEN = YELLOW = BLUE = \
+        GRAY = RED = GREEN = YELLOW = BLUE = ""
         PURPLE = CYAN = NORMAL = ""
 except KeyError:
     # Light Colour Scheme
@@ -317,7 +317,7 @@ def freeze():
         print (_("   %sERROR:%s The container state is %s,\n"
                "          it needs to be in the 'RUNNING'"
                " state in order to be frozen."
-                % (RED, NORMAL, lxc.Container(CONTAINERNAME).state)))
+               % (RED, NORMAL, lxc.Container(CONTAINERNAME).state)))
 
 
 def unfreeze():
@@ -338,7 +338,7 @@ def unfreeze():
         print (_("   %sERROR:%s The container state is %s,\n"
                "   it needs to be in the 'FROZEN' state in"
                "order to be unfrozen."
-                % (RED, NORMAL, lxc.Container(CONTAINERNAME).state)))
+               % (RED, NORMAL, lxc.Container(CONTAINERNAME).state)))
 
 
 def toggleautostart():
@@ -494,8 +494,9 @@ def runinall():
         if lxc.Container(CONTAINERNAME).state.swapcase() == "running":
             print (_(" * Executing %s in %s..." % (' '.join(ARGS.command),
                      CONTAINERNAME)))
-            return_code = subprocess.call("ssh %s %s"
-                          (CONTAINERNAME, ' '.join(ARGS.command)), shell=True)
+            return_code = subprocess.call("ssh %s %s" %
+                                          (CONTAINERNAME,
+                                           ' '.join(ARGS.command)), shell=True)
             if not return_code == 0:
                 print (_("    %swarning:%s last exit code in container: %s"
                          % (YELLOW, NORMAL, return_code)))
@@ -582,8 +583,9 @@ def execute():
     """Execute a command in a container via SSH"""
     print (_(" * Executing '%s' in %s..." % (' '.join(ARGS.command),
                                              CONTAINERNAME)))
-    return_code = subprocess.call("ssh %s %s"
-                       % (CONTAINERNAME, ' '.join(ARGS.command)), shell=True)
+    return_code = subprocess.call("ssh %s %s" %
+                                  (CONTAINERNAME, ' '.join(ARGS.command)),
+                                  shell=True)
     if not return_code == 0:
         print (_("    %swarning:%s last exit code in container: %s"
                % (YELLOW, NORMAL, return_code)))
@@ -594,9 +596,10 @@ def execute():
 def enter():
     """Enter a container via SSH"""
     print (_(" * Entering container %s..." % (CONTAINERNAME)))
-    return_code = subprocess.call("ssh %s -i %s"
-                  % (CONTAINERNAME, LLXCHOME_PATH + "/ssh/container_rsa"),
-                     shell=True)
+    return_code = subprocess.call("ssh %s -i %s" %
+                                  (CONTAINERNAME,
+                                   LLXCHOME_PATH + "/ssh/container_rsa"),
+                                  shell=True)
     if not return_code == 0:
         print (_("    %swarning:%s last exit code in container: %s"
                % (YELLOW, NORMAL, return_code)))
@@ -614,8 +617,7 @@ def checkconfig():
 
     if not os.path.exists(configpath):
         print ("   %serror 404:%s the kernel config could not be found, "
-               "please report a bug with your system info"
-              % (RED, NORMAL))
+               "please report a bug with your system info" % (RED, NORMAL))
         sys.exit(404)
 
     kernelconfig = open(configpath, 'r').read()
@@ -636,46 +638,46 @@ def checkconfig():
             return RED + "disabled" + NORMAL
 
     print (_("LXC Kernel Config Report for: %s%s%s\n")
-             % (CYAN, configpath, NORMAL))
+           % (CYAN, configpath, NORMAL))
     print (_("  NAMESPACES:"))
     print (_("    Namespaces: %s")
-             % (confcheck('CONFIG_NAMESPACES')))
+           % (confcheck('CONFIG_NAMESPACES')))
     print (_("    UTS name namespace: %s")
-             % (confcheck('CONFIG_UTS_NS')))
+           % (confcheck('CONFIG_UTS_NS')))
     print (_("    IPS namespace: %s")
-             % (confcheck('CONFIG_IPC_NS')))
+           % (confcheck('CONFIG_IPC_NS')))
     print (_("    PID namespace: %s")
-             % (confcheck('CONFIG_PID_NS')))
+           % (confcheck('CONFIG_PID_NS')))
     print (_("    User namespace: %s")
-             % (confcheck('CONFIG_USER_NS')))
+           % (confcheck('CONFIG_USER_NS')))
     print (_("    Network namespace: %s")
-             % (confcheck('CONFIG_NET_NS')))
+           % (confcheck('CONFIG_NET_NS')))
     print (_("    Multiple /dev/pts instances: %s")
-             % (confcheck('DEVPTS_MULTIPLE_INSTANCES')))
+           % (confcheck('DEVPTS_MULTIPLE_INSTANCES')))
     print (_("  CONTROL GROUPS:"))
     print (_("    Cgroup: %s")
-             % (confcheck('CONFIG_CGROUPS')))
+           % (confcheck('CONFIG_CGROUPS')))
     print (_("    Cgroup clone_children flag: %s")
-             % (cgroupcheck('/cpuset//cgroup.clone_children')))
+           % (cgroupcheck('/cpuset//cgroup.clone_children')))
     print (_("    Cgroup device: %s")
-             % (confcheck('CONFIG_CGROUP_DEVICE')))
+           % (confcheck('CONFIG_CGROUP_DEVICE')))
     print (_("    Cgroup sched: %s")
-             % (confcheck('CONFIG_CGROUP_SCHED')))
+           % (confcheck('CONFIG_CGROUP_SCHED')))
     print (_("    Cgroup cpu account: %s")
-             % (confcheck('CONFIG_CGROUP_CPUACCT')))
+           % (confcheck('CONFIG_CGROUP_CPUACCT')))
     print (_("    Cgroup memory controller: %s")
-             % (confcheck('CONFIG_CGROUP_MEM_RES_CTLR')))
+           % (confcheck('CONFIG_CGROUP_MEM_RES_CTLR')))
     print (_("    Cgroup cpuset: %s")
-             % (confcheck('CONFIG_CPUSETS')))
+           % (confcheck('CONFIG_CPUSETS')))
     print (_("  MISC:"))
     print (_("    Veth pair device: %s")
-             % (confcheck('CONFIG_VETH')))
+           % (confcheck('CONFIG_VETH')))
     print (_("    Macvlan: %s")
-             % (confcheck('CONFIG_MACVLAN')))
+           % (confcheck('CONFIG_MACVLAN')))
     print (_("    Vlan: %s")
-             % (confcheck('CONFIG_VLAN_8021Q')))
+           % (confcheck('CONFIG_VLAN_8021Q')))
     print (_("    File capabilities: %s")
-             % (confcheck('CONFIG_SECURITY_FILE_CAPABILITIES')))
+           % (confcheck('CONFIG_SECURITY_FILE_CAPABILITIES')))
 
 
 def printconfig():
@@ -742,12 +744,11 @@ def requires_container_existance():
     try:
         if not os.path.exists(CONTAINER_PATH + CONTAINERNAME):
             print (_("   %serror 404:%s That container (%s) "
-                     "could not be found."
-                      % (RED, NORMAL, CONTAINERNAME)))
+                     "could not be found." % (RED, NORMAL, CONTAINERNAME)))
             sys.exit(404)
     except NameError:
-        print (_("   %serror 400:%s You must specify a container."
-                  % (RED, NORMAL)))
+        print (_("   %serror 400:%s You must specify a container." %
+               (RED, NORMAL)))
         sys.exit(400)
 
 
@@ -782,68 +783,69 @@ def is_path_on_btrfs(path):
 
 # Argument parsing
 
-PARSER = argparse.ArgumentParser(
-         description=_("LLXC Linux Container Management"),
-         formatter_class=argparse.RawTextHelpFormatter)
+PARSER = argparse.ArgumentParser(description=_(
+                                 "LLXC Linux Container Management"),
+                                 formatter_class=argparse.RawTextHelpFormatter)
 
 # Optional arguements
 
 PARSER.add_argument("-if", "--interface", type=str, default="eth0",
-                     help=_("Ethernet Interface, eg: eth0, eth1"))
+                    help=_("Ethernet Interface, eg: eth0, eth1"))
 PARSER.add_argument("-ip", "--ipstack", type=str, default="ipv4",
-                     help=_("Network IP to list, ex: ipv4, ipv6"))
+                    help=_("Network IP to list, ex: ipv4, ipv6"))
 
 SP = PARSER.add_subparsers(help=_('sub command help'))
 
 SP_CREATE = SP.add_parser('create', help=_('Create a container'))
 SP_CREATE.add_argument('CONTAINERNAME', type=str,
-                        help=_('name of the container'))
+                       help=_('name of the container'))
 SP_CREATE.set_defaults(function=create)
 
 SP_DESTROY = SP.add_parser('destroy', help='Destroy a container')
 SP_DESTROY.add_argument('CONTAINERNAME', type=str,
-                         help='name of the container')
+                        help='name of the container')
 SP_DESTROY.set_defaults(function=destroy)
 
 SP_STATUS = SP.add_parser('status', help='Display container status')
 SP_STATUS.add_argument('CONTAINERNAME', type=str,
-                        help='Name of the container')
+                       help='Name of the container')
 SP_STATUS.set_defaults(function=status)
 
 SP_STOP = SP.add_parser('stop', help='Not used')
 SP_STOP.add_argument('CONTAINERNAME', type=str,
-                      help='Name of the container')
+                     help='Name of the container')
 SP_STOP.set_defaults(function=stop)
 
 SP_START = SP.add_parser('start', help='Starts a container')
 SP_START.add_argument('CONTAINERNAME', type=str,
-                       help='Name of the container')
+                      help='Name of the container')
 SP_START.set_defaults(function=start)
 
 SP_KILL = SP.add_parser('kill', help='Kills a container')
 SP_KILL.add_argument('CONTAINERNAME', type=str,
-                      help='Name of the container to be killed')
+                     help='Name of the container to be killed')
 SP_KILL.set_defaults(function=kill)
 
 SP_HALT = SP.add_parser('halt', help='Shuts down a container')
 SP_HALT.add_argument('CONTAINERNAME', type=str,
-                          help='Name of the container')
+                     help='Name of the container')
 SP_HALT.set_defaults(function=halt)
 
 SP_TOGGLEAUTOSTART = SP.add_parser('toggleautostart',
-    help='Toggles the state of starting up on boot time for a container')
+                                   help='Toggles the state of starting up on '
+                                        'boot time for a container')
 SP_TOGGLEAUTOSTART.add_argument('CONTAINERNAME', type=str,
-                                    help='Name of the container')
+                                help='Name of the container')
 SP_TOGGLEAUTOSTART.set_defaults(function=toggleautostart)
 
 SP_FREEZE = SP.add_parser('freeze', help='Freezes a container')
 SP_FREEZE.add_argument('CONTAINERNAME', type=str,
-                          help='Name of the container')
+                       help='Name of the container')
 SP_FREEZE.set_defaults(function=freeze)
 
 SP_UNFREEZE = SP.add_parser('unfreeze', help='Unfreezes a container')
 SP_UNFREEZE.add_argument('CONTAINERNAME', type=str,
-                          help='Name of the container')
+                         help='Name of the container')
 SP_UNFREEZE.set_defaults(function=unfreeze)
 
 SP_LIST = SP.add_parser('list', help='Displays a list of containers')
@@ -851,9 +853,9 @@ SP_LIST.set_defaults(function=listing)
 
 SP_CLONE = SP.add_parser('clone', help='Clone a container into a new one')
 SP_CLONE.add_argument('CONTAINERNAME', type=str,
-                       help='Name of the container to be cloned')
+                      help='Name of the container to be cloned')
 SP_CLONE.add_argument('newCONTAINERNAME', type=str,
-                       help='Name of the new container to be created')
+                      help='Name of the new container to be created')
 SP_CLONE.set_defaults(function=clone)
 
 SP_ARCHIVE = SP.add_parser('archive', help='Archive a container')
@@ -863,7 +865,7 @@ SP_ARCHIVE.set_defaults(function=archive)
 
 SP_UNARCHIVE = SP.add_parser('unarchive', help='Unarchive a container')
 SP_UNARCHIVE.add_argument('CONTAINERNAME', type=str,
-                        help="Name of the container to be unarchived")
+                          help="Name of the container to be unarchived")
 SP_UNARCHIVE.set_defaults(function=unarchive)
 
 SP_STARTALL = SP.add_parser('startall', help='Start all stopped containers')
@@ -887,14 +889,14 @@ SP_UPDATESSHKEYS.set_defaults(function=update_sshkeys)
 
 SP_EXEC = SP.add_parser('exec', help='Execute a command in container via SSH')
 SP_EXEC.add_argument('CONTAINERNAME', type=str,
-                        help="Name of the container to execute command in")
+                     help="Name of the container to execute command in")
 SP_EXEC.add_argument('command', metavar='CMD', type=str, nargs='*',
-                        help="Command to be executed")
+                     help="Command to be executed")
 SP_EXEC.set_defaults(function=execute)
 
 SP_ENTER = SP.add_parser('enter', help='Log in to a container via SSH')
 SP_ENTER.add_argument('CONTAINERNAME', type=str,
-                        help="Name of the container to enter")
+                      help="Name of the container to enter")
 SP_ENTER.set_defaults(function=enter)
 
 SP_CHECKCONFIG = SP.add_parser('checkconfig',
