@@ -48,6 +48,7 @@ future versions.
 
 
 0.4 - Future Release
+ * [ ] Use lxc-attach for "enter"
  * [ ] make llxc work with cgroups from debian again
  * [x] btrfs filesystem awareness
  * [ ] Basic awareness of other hosts
