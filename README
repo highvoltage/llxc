@@ -37,3 +37,6 @@ Depends:
     * python3-lxc
     * python3-crypto
     * lvm2
+
+Recommended:
+    * btrfs-utils
