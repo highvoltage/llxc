@@ -64,6 +64,7 @@ future versions.
  * [ ] fix memory display in status
  * [ ] lvm filesystem awareness
  * [ ] copytoall, copy a file to all containers
+ * [ ] Rename a container
 
 0.5 - Future Release
  * [ ] Initial web interface based on rlxc interface
