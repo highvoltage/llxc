@@ -609,9 +609,14 @@ def enter():
 
 def rename():
     """Rename a container"""
-    print (_(" * Renaming container %s..." % (CONTAINERNAME)))
+    container_start_state = lxc.Container(CONTAINERNAME).state
+    requires_container_existance()
     requires_stopped_container()
-    print "Not yet implemented"
+    print (_(" * Renaming container %s..." % (CONTAINERNAME)))
+    print "Renaming a container not yet implemented"
+    if container_start_state == "RUNNING":
+        start()
+
 
 def checkconfig():
     """Prints any information we can provide on the LXC Host system"""
@@ -710,9 +715,13 @@ def console():
 
 def requires_stopped_container():
     """Check whether a container is stopped, and for now, stops it"""
-    #TODO: 
-    print (_("Warning: we're currently not checking whether the container"
-             "is stopped."))
+    if lxc.Container(CONTAINERNAME).state == "RUNNING":
+    print (_(" * %sWARNING:%s Container is running, stopping it in"
+           " 10 seconds..."
+           % (YELLOW, NORMAL)))
+    time.sleep(10)
+    kill()
+
 
 def requires_root():
     """Tests whether the user is root. Required for many functions"""
@@ -934,6 +943,17 @@ SP_CONSOLE = SP.add_parser('console',
 SP_CONSOLE.set_defaults(function=console)
 SP_CONSOLE.add_argument('CONTAINERNAME', type=str,
                         help="Name of the container to attach console")
+
+SP_CONSOLE = SP.add_parser('rename',
+                           help='Rename an LXC Container')
+
+SP_RENAME.set_defaults(function=rename)
+SP_RENAMEE.add_argument('CONTAINERNAME', type=str,
+                        help="Name of the container to be renamed")
+SP_RENAME.add_argument('NEWCONTAINERNAME', type=str,
+                     help="Name of new container")
+
+
 
 ARGS = PARSER.parse_args()
 
