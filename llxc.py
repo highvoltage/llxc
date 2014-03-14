@@ -23,7 +23,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# The little perfectionist in me likes to keep this alphabetical.
+# Please keep alphabetical.
 import argparse
 import glob
 import gettext
@@ -607,6 +607,12 @@ def enter():
            % (GREEN, CONTAINERNAME, NORMAL)))
 
 
+def rename():
+    """Rename a container"""
+    print (_(" * Renaming container %s..." % (CONTAINERNAME)))
+    requires_stopped_container()
+    print "Not yet implemented"
+
 def checkconfig():
     """Prints any information we can provide on the LXC Host system"""
 
@@ -700,7 +706,13 @@ def console():
         print (_("   %serror:%s please check status" % (RED, NORMAL)))
 
 
-# Tests
+# Sanity checks and so on. 
+
+def requires_stopped_container():
+    """Check whether a container is stopped, and for now, stops it"""
+    #TODO: 
+    print (_("Warning: we're currently not checking whether the container"
+             "is stopped."))
 
 def requires_root():
     """Tests whether the user is root. Required for many functions"""
