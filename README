@@ -1,7 +1,7 @@
 LLXC is a script for working with LXC containers using python3-lxc.
 
 There are some screenshots and explenation of what this is about on:
-   * http://jonathancarter.org/2012/09/29/some-fun-with-python3-lxc
+   * https://jonathancarter.org/2012/09/29/llxc-my-little-python3-lxc-based-project/
 
 What currently works:
     * Starting containers
